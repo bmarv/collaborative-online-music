@@ -1,19 +1,21 @@
-const express = require('express')
+const express = require('express');
+const uuid = require('uuid');
 
-const app = express()
+const app = express();
 const server = require('http').createServer(app);
 const WebSocket = require('ws');
 const port = process.env.PORT || 3000;
 
 const wss = new WebSocket.Server({ server:server });
 
-wss.on('connection', function connection(ws) {
-  console.log('A new client Connected!');
-  ws.send('Welcome New Client!');
+wss.on('connection', function connection(ws, req) {
+    ws.id = uuid.v4();
+    console.log(`New Connection: Client-Id=${ws.id}`);
+    ws.send(`Welcome New Client!\t${ws.id}`);
 
-  ws.on('message', function incoming(message) {
-    console.log('received: %s', message); 
-  });
+    ws.on('message', function incoming(message) {
+        console.log('received: %s', message); 
+    });
 });
 
 app.get('/', (req, res) => res.sendFile(__dirname + '/index.html'));
