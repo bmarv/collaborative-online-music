@@ -10,8 +10,12 @@ const wss = new WebSocket.Server({ server:server });
 
 wss.on('connection', function connection(ws, req) {
     ws.id = uuid.v4();
+    const serverMessageObj = {
+        'message': 'Welcome New Client',
+        'id': ws.id,
+    };
     console.log(`New Connection: Client-Id=${ws.id}`);
-    ws.send(`Welcome New Client!\t${ws.id}`);
+    ws.send(JSON.stringify(serverMessageObj));
 
     ws.on('message', function incoming(message) {
         console.log('received: %s', message); 
