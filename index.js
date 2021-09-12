@@ -14,11 +14,12 @@ wss.on('connection', function connection(ws, req) {
         'message': 'Welcome New Client',
         'id': ws.id,
     };
-    console.log(`New Connection: Client-Id=${ws.id}`);
+    console.log(`New Connection: ClientID=${ws.id}`);
     ws.send(JSON.stringify(serverMessageObj));
 
     ws.on('message', function incoming(message) {
-        console.log('received: %s', message); 
+        console.log('received: %s', message);
+        const clientMessageObj = JSON.parse(message);
     });
 });
 

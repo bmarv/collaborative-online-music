@@ -28,8 +28,12 @@
             document.getElementById("clientIDText").innerHTML = clientID;
         });
 
-        const sendMessage = () => {
-            socket.send('Hello From THE NEW CLIENT');
+        const sendMessage = (id = clientID) => {
+            const clientMessageObj = {
+                'message': 'Hello Server, Regards Client',
+                'id': id,
+            };
+            socket.send(JSON.stringify(clientMessageObj));
         }
     </script>
 </html>
