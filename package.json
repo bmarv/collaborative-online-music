@@ -15,5 +15,8 @@
     "nodemon": "^2.0.12",
     "uuid": "^8.3.2",
     "ws": "^7.3.0"
+  },
+  "devDependencies": {
+    "bson": "^4.5.2"
   }
 }
