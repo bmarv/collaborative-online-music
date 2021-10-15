@@ -33,11 +33,8 @@ wss.on('connection', function connection(ws, req) {
             const dataFromClient = deserialize(message, {promoteBuffers: true});
             console.log(`file from client-id: ${(dataFromClient.id)}`);
 
-            console.log(dataFromClient.file);
-            
-
             fs.writeFile(
-                'downloadDoc',
+                `output/downloaded-${dataFromClient.fileName}`,
                 dataFromClient.file, // edited
                 'binary',
                 (err) => {

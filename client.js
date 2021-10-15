@@ -33,16 +33,16 @@ const sendMessage = (id = clientID) => {
 window.sendMessage = sendMessage;
 
 const sendFile = (id = clientID) => {
-    var file = document.getElementById('fileInput').files[0];
-    // socket.send(file);
-    var reader = new FileReader();
-    var rawData = new ArrayBuffer();
+    const file = document.getElementById('fileInput').files[0];
+    const fileName = file.name;
+    const reader = new FileReader();
+    let rawData = new ArrayBuffer();
     reader.onload = (e = file) => {
         rawData = e.target.result;
         const bufferData = Buffer.from(rawData);
-        console.log(`type of file ${typeof(file)}`);
         const bsonData = serialize({
             id: id,
+            fileName: fileName,
             file: bufferData,
             route: 'TRANSFER',
             action: 'FILE_UPLOAD',
