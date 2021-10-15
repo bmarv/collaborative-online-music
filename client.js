@@ -39,19 +39,15 @@ const sendFile = (id = clientID) => {
     var rawData = new ArrayBuffer();
     reader.onload = (e = file) => {
         rawData = e.target.result;
-        // socket.send(rawData)
-        // const bufferData = Buffer.from(rawData);
+        const bufferData = Buffer.from(rawData);
+        console.log(`type of file ${typeof(file)}`);
         const bsonData = serialize({
-            file: file,
+            id: id,
+            file: bufferData,
             route: 'TRANSFER',
             action: 'FILE_UPLOAD',
         });
         socket.send(bsonData);
-        // socket.send({
-        //     file: file,
-        //     route: 'TRANSFER',
-        //     action: 'FILE_UPLOAD',
-        // });
     };
     reader.readAsArrayBuffer(file);
 }

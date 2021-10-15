@@ -31,16 +31,19 @@ wss.on('connection', function connection(ws, req) {
         else {
             console.log('received an other message');
             const dataFromClient = deserialize(message, {promoteBuffers: true});
-            console.log(`data from client: ${(dataFromClient)}`);
+            console.log(`file from client-id: ${(dataFromClient.id)}`);
+
             console.log(dataFromClient.file);
-            // fs.writeFile(
-            //     'downloadDoc',
-            //     dataFromClient.file, // edited
-            //     'binary',
-            //     (err) => {
-            //       console.log('ERROR!!!!', err);
-            //     }
-            // );
+            
+
+            fs.writeFile(
+                'downloadDoc',
+                dataFromClient.file, // edited
+                'binary',
+                (err) => {
+                  console.log('ERROR!!!!', err);
+                }
+            );
         }
            
     });
