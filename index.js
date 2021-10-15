@@ -2,6 +2,7 @@ const express = require('express');
 const uuid = require('uuid');
 const buffer = require('buffer')
 const bson = require('bson')
+const path = require('path')
 // import { serialize } from 'bson';
 // import { Buffer } from 'buffer';
 
@@ -36,5 +37,7 @@ wss.on('connection', function connection(ws, req) {
 });
 
 app.get('/', (req, res) => res.sendFile(__dirname + '/index.html'));
+
+app.use(express.static(path.join(__dirname)));
 
 server.listen(port, () => console.log(`Listening on port: ${port}`))
