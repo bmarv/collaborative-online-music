@@ -12,7 +12,12 @@ exports.saveBinaryFileInServerDirectory = (fileName, file, outputDirectory) => {
         file,
         'binary',
         (err) => {
-            console.log('ERROR!!!!', err);
+            if (err){
+                console.log('ERROR IN SAVING BINARY FILE', err);
+            }
+            else{
+                return true;
+            }
         }
     );
 }
