@@ -1,18 +1,15 @@
 const express = require('express');
 const uuid = require('uuid');
-const buffer = require('buffer')
-const bson = require('bson')
-const path = require('path')
-// import { serialize } from 'bson';
-// import { Buffer } from 'buffer';
+const buffer = require('buffer');
+const bson = require('bson');
+const deserialize = bson.deserialize;
+const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const server = require('http').createServer(app);
 const WebSocket = require('ws');
 const port = process.env.PORT || 3000;
-const serialize = bson.serialize;
-const Buffer = buffer.Buffer
-
 
 const wss = new WebSocket.Server({ server:server });
 
@@ -27,12 +24,25 @@ wss.on('connection', function connection(ws, req) {
 
     ws.on('message', function incoming(message) {
         console.log(`TYPE OF MESSAGE: ${typeof(message)}`);
-        console.log('received: %s', message);
         if (typeof(message) === 'string'){
+            console.log('received: %s', message);
             const clientMessageObj = JSON.parse(message);
         }
-       
-        
+        else {
+            console.log('received an other message');
+            const dataFromClient = deserialize(message, {promoteBuffers: true});
+            console.log(`data from client: ${(dataFromClient)}`);
+            console.log(dataFromClient.file);
+            // fs.writeFile(
+            //     'downloadDoc',
+            //     dataFromClient.file, // edited
+            //     'binary',
+            //     (err) => {
+            //       console.log('ERROR!!!!', err);
+            //     }
+            // );
+        }
+           
     });
 });
 

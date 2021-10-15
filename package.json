@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "commonjs",
   "scripts": {
     "start": "node index",
-    "dev": "npx nodemon index.js"
+    "build-client": "npx browserify client.js -o dist/bundle-client.js",
+    "dev-server": "npx nodemon index.js",
+    "dev": "npm run build-client && npm run dev-server"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +20,7 @@
     "ws": "^7.3.0"
   },
   "devDependencies": {
+    "browserify": "^17.0.0",
     "bson": "^4.5.2"
   }
 }

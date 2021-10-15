@@ -1,8 +1,11 @@
-// const buffer = require('buffer')
-// const bson = require('bson')
+const buffer = require('buffer');
+const bson = require('bson');
+const serialize = bson.serialize;
+const Buffer = buffer.Buffer
 
-const port = 3000;
+const port = process.env.PORT || 3000;
 let clientID = null;
+
 
 // Open WebSocket connection as a Client.
 const socket = new WebSocket(`ws://localhost:${port}`);
@@ -27,20 +30,29 @@ const sendMessage = (id = clientID) => {
     };
     socket.send(JSON.stringify(clientMessageObj));
 }
+window.sendMessage = sendMessage;
 
 const sendFile = (id = clientID) => {
     var file = document.getElementById('fileInput').files[0];
+    // socket.send(file);
     var reader = new FileReader();
     var rawData = new ArrayBuffer();
     reader.onload = (e = file) => {
         rawData = e.target.result;
-        socket.send(rawData)
-        const bufferData = Buffer.from(rawData);
+        // socket.send(rawData)
+        // const bufferData = Buffer.from(rawData);
         const bsonData = serialize({
-            file: bufferData,
+            file: file,
             route: 'TRANSFER',
             action: 'FILE_UPLOAD',
         });
         socket.send(bsonData);
-    }   
+        // socket.send({
+        //     file: file,
+        //     route: 'TRANSFER',
+        //     action: 'FILE_UPLOAD',
+        // });
+    };
+    reader.readAsArrayBuffer(file);
 }
+window.sendFile = sendFile;
