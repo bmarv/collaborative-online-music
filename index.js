@@ -1,10 +1,10 @@
 const express = require('express');
 const uuid = require('uuid');
-const buffer = require('buffer');
 const bson = require('bson');
 const deserialize = bson.deserialize;
 const path = require('path');
-const fs = require('fs');
+
+const fileHandler = require('./helper/fileHandler');
 
 const app = express();
 const server = require('http').createServer(app);
@@ -23,26 +23,16 @@ wss.on('connection', function connection(ws, req) {
     ws.send(JSON.stringify(serverMessageObj));
 
     ws.on('message', function incoming(message) {
-        console.log(`TYPE OF MESSAGE: ${typeof(message)}`);
         if (typeof(message) === 'string'){
             console.log('received: %s', message);
-            const clientMessageObj = JSON.parse(message);
+            // const clientMessageObj = JSON.parse(message);
         }
         else {
             console.log('received an other message');
             const dataFromClient = deserialize(message, {promoteBuffers: true});
-            console.log(`file from client-id: ${(dataFromClient.id)}`);
-
-            fs.writeFile(
-                `output/downloaded-${dataFromClient.fileName}`,
-                dataFromClient.file, // edited
-                'binary',
-                (err) => {
-                  console.log('ERROR!!!!', err);
-                }
-            );
+            console.log(`client-id: ${(dataFromClient.id)} sended file: ${dataFromClient.fileName}`);
+            fileHandler.saveBinaryFileInServerDirectory(dataFromClient.fileName, dataFromClient.file, 'output');
         }
-           
     });
 });
 
@@ -50,4 +40,4 @@ app.get('/', (req, res) => res.sendFile(__dirname + '/index.html'));
 
 app.use(express.static(path.join(__dirname)));
 
-server.listen(port, () => console.log(`Listening on port: ${port}`))
+server.listen(port, () => console.log(`Listening on port: ${port}`));

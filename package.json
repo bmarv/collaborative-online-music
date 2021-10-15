@@ -11,7 +11,7 @@
     "dev": "npm run build-client && npm run dev-server"
   },
   "keywords": [],
-  "author": "",
+  "author": "Marvin Beese",
   "license": "",
   "dependencies": {
     "express": "^4.17.1",
