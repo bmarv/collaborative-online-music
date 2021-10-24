@@ -7,10 +7,6 @@ const port = process.env.PORT || 3000;
 let clientID = null;
 
 
-// TODO: html: toast-message f. server-messages
-
-// TODO: displayServerBroadcastMessage()
-
 // Open WebSocket connection as a Client.
 const socket = new WebSocket(`ws://localhost:${port}`);
 
@@ -25,8 +21,10 @@ socket.addEventListener('message', function (event) {
     console.log('Message from server ', serverDataObj);
     clientID = serverDataObj.id;
     document.getElementById("clientIDText").innerHTML = clientID;
+    document.getElementById("serverMessageTextArea").value = `Server-Message: ${String(serverDataObj.message)}`;
 });
 
+// send Ping-Message to Server
 const sendMessage = (id = clientID) => {
     const clientMessageObj = {
         'message': 'Hello Server, Regards Client',
@@ -36,6 +34,7 @@ const sendMessage = (id = clientID) => {
 }
 window.sendMessage = sendMessage;
 
+// send File to Server
 const sendFile = (id = clientID) => {
     const file = document.getElementById('fileInput').files[0];
     const fileName = file.name;
