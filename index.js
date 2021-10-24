@@ -44,9 +44,10 @@ wss.on('connection', function connection(ws, req) {
     });
 });
 
-app.get('/', (req, res) => res.sendFile(__dirname + '/index.html'));
-// TODO: route to /client
+app.get('/', (req, res) => res.sendStatus(403));
+app.get('/client', (req, res) => res.sendFile(path.join(__dirname, 'views/client.html')));
 
 app.use(express.static(path.join(__dirname)));
+app.use(express.static(path.join(__dirname, 'views')));
 
 server.listen(port, () => console.log(`Listening on port: ${port}`));

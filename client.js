@@ -7,7 +7,6 @@ const port = process.env.PORT || 3000;
 let clientID = null;
 
 
-// TODO: index.html ==> client.html
 // TODO: html: toast-message f. server-messages
 
 // TODO: displayServerBroadcastMessage()
