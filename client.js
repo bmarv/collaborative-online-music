@@ -19,8 +19,8 @@ socket.addEventListener('open', function (event) {
 socket.addEventListener('message', function (event) {
     const serverDataObj = JSON.parse(event.data);
     console.log('Message from server ', serverDataObj);
-    clientID = serverDataObj.id;
-    document.getElementById("clientIDText").innerHTML = clientID;
+    const clientID = serverDataObj.id;
+    if (clientID !== 'BROADCAST-MESSAGE') { document.getElementById("clientIDText").innerHTML = clientID; }
     document.getElementById("serverMessageTextArea").value = `Server-Message: ${String(serverDataObj.message)}`;
 });
 

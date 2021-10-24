@@ -1,28 +1,33 @@
 const uuid = require('uuid');
 const bson = require('bson');
-const deserialize = bson.deserialize;
 
 const fileHandler = require('./fileHandler');
 
+const deserialize = bson.deserialize;
 
-exports.websocketConnectionHandler = (wss) => {   
-    wss.on('connection', function connection(ws, req) {
+exports.websocketConnectionHandler = (WebSocketInstance, webSocketServer) => {   
+    webSocketServer.on('connection', function connection(ws, req) {
         ws.id = uuid.v4();
-
-        exports.initClientConnection(ws);
         
-        // TODO: broadcastToClients()
+        exports.sendMessageToClient(ws, message='Welcome New Client');
+        console.log(`New Connection: ClientID=${ws.id}`);
+        
+        exports.broadcastToClients(WebSocketInstance = WebSocketInstance, webSocketServer = webSocketServer, ws = ws, message = 'this is a broadcast message', isBinary = false);
         
         exports.handleIncommingClientMessage(ws);
     });
 };
 
-exports.initClientConnection = (ws) => {
+exports.packMessageForClient = (wsId, message) => {
     const serverMessageObj = {
-        'message': 'Welcome New Client',
-        'id': ws.id,
+        'id': wsId,
+        'message': message,
     };
-    console.log(`New Connection: ClientID=${ws.id}`);
+    return serverMessageObj;
+}
+
+exports.sendMessageToClient = (ws, message) => {
+    const serverMessageObj = exports.packMessageForClient(ws.id, message)
     ws.send(JSON.stringify(serverMessageObj));
 };
 
@@ -39,4 +44,12 @@ exports.handleIncommingClientMessage = (ws) => {
             fileHandler.saveBinaryFileInServerDirectory(dataFromClient.fileName, dataFromClient.file, 'output');
         }
     });
+};
+
+exports.broadcastToClients = (WebSocketInstance, webSocketServer, ws, message, isBinary) => {
+    webSocketServer.clients.forEach( (client) => {
+        if (client.readyState == WebSocketInstance.OPEN) {
+            client.send(JSON.stringify(this.packMessageForClient('BROADCAST-MESSAGE', message)), {binary: isBinary});
+        }
+    } )
 };
