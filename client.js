@@ -7,6 +7,11 @@ const port = process.env.PORT || 3000;
 let clientID = null;
 
 
+// TODO: index.html ==> client.html
+// TODO: html: toast-message f. server-messages
+
+// TODO: displayServerBroadcastMessage()
+
 // Open WebSocket connection as a Client.
 const socket = new WebSocket(`ws://localhost:${port}`);
 

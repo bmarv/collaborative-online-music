@@ -13,15 +13,23 @@ const port = process.env.PORT || 3000;
 
 const wss = new WebSocket.Server({ server:server });
 
+// TODO: handleRuntimeInput()
+// TODO: ==> wsActions.js f. methods
 wss.on('connection', function connection(ws, req) {
     ws.id = uuid.v4();
+
+    // TODO: ==> initClientConnection()
     const serverMessageObj = {
         'message': 'Welcome New Client',
         'id': ws.id,
     };
     console.log(`New Connection: ClientID=${ws.id}`);
     ws.send(JSON.stringify(serverMessageObj));
+    
+    // TODO: broadcastToClients()
 
+
+    // TODO: ==> handleInclomingClientMessage()
     ws.on('message', function incoming(message) {
         if (typeof(message) === 'string'){
             console.log('received: %s', message);
@@ -37,6 +45,7 @@ wss.on('connection', function connection(ws, req) {
 });
 
 app.get('/', (req, res) => res.sendFile(__dirname + '/index.html'));
+// TODO: route to /client
 
 app.use(express.static(path.join(__dirname)));
 
