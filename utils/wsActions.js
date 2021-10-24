@@ -12,7 +12,7 @@ exports.websocketConnectionHandler = (WebSocketInstance, webSocketServer) => {
         exports.sendMessageToClient(ws, message='Welcome New Client');
         console.log(`New Connection: ClientID=${ws.id}`);
         
-        exports.broadcastToClients(WebSocketInstance = WebSocketInstance, webSocketServer = webSocketServer, ws = ws, message = 'this is a broadcast message', isBinary = false);
+        // exports.broadcastToClients(WebSocketInstance = WebSocketInstance, webSocketServer = webSocketServer, ws = ws, message = 'this is a broadcast message', isBinary = false);
         
         exports.handleIncommingClientMessage(ws);
     });
