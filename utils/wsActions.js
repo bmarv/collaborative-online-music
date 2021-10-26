@@ -1,18 +1,19 @@
 const uuid = require('uuid');
 const bson = require('bson');
+const WebSocket = require('ws');
 
 const fileHandler = require('./fileHandler');
 
 const deserialize = bson.deserialize;
 
-exports.websocketConnectionHandler = (WebSocketInstance, webSocketServer) => {   
+exports.websocketConnectionHandler = (webSocketServer) => {   
     webSocketServer.on('connection', function connection(ws, req) {
         ws.id = uuid.v4();
         
         exports.sendMessageToClient(ws, message='Welcome New Client');
         console.log(`New Connection: ClientID=${ws.id}`);
         
-        // exports.broadcastToClients(WebSocketInstance = WebSocketInstance, webSocketServer = webSocketServer, message = 'this is a broadcast message', isBinary = false);
+        // exports.broadcastToClients(webSocketServer = webSocketServer, message = 'this is a broadcast message', isBinary = false);
         
         exports.handleIncommingClientMessage(ws);
     });
@@ -46,9 +47,9 @@ exports.handleIncommingClientMessage = (ws) => {
     });
 };
 
-exports.broadcastToClients = (WebSocketInstance, webSocketServer, message, isBinary) => {
+exports.broadcastToClients = (webSocketServer, message, isBinary) => {
     webSocketServer.clients.forEach( (client) => {
-        if (client.readyState == WebSocketInstance.OPEN) {
+        if (client.readyState == WebSocket.OPEN) {
             client.send(JSON.stringify(this.packMessageForClient('BROADCAST-MESSAGE', message)), {binary: isBinary});
         }
     } )

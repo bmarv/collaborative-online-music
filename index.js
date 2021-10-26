@@ -10,7 +10,7 @@ const port = process.env.PORT || 3000;
 
 const wss = new WebSocket.Server({ server:server });
 
-wsActions.websocketConnectionHandler(WebSocket, wss);
+wsActions.websocketConnectionHandler(wss);
 
 app.set('view engine', 'pug')
 app.get('/', function (req, res) {
@@ -19,7 +19,6 @@ app.get('/', function (req, res) {
   
 app.get('/server', function (req, res) {
     res.render('server', { 
-        port: port,
         wss: wss
     })
 })
