@@ -12,7 +12,7 @@ exports.websocketConnectionHandler = (WebSocketInstance, webSocketServer) => {
         exports.sendMessageToClient(ws, message='Welcome New Client');
         console.log(`New Connection: ClientID=${ws.id}`);
         
-        // exports.broadcastToClients(WebSocketInstance = WebSocketInstance, webSocketServer = webSocketServer, ws = ws, message = 'this is a broadcast message', isBinary = false);
+        // exports.broadcastToClients(WebSocketInstance = WebSocketInstance, webSocketServer = webSocketServer, message = 'this is a broadcast message', isBinary = false);
         
         exports.handleIncommingClientMessage(ws);
     });
@@ -46,7 +46,7 @@ exports.handleIncommingClientMessage = (ws) => {
     });
 };
 
-exports.broadcastToClients = (WebSocketInstance, webSocketServer, ws, message, isBinary) => {
+exports.broadcastToClients = (WebSocketInstance, webSocketServer, message, isBinary) => {
     webSocketServer.clients.forEach( (client) => {
         if (client.readyState == WebSocketInstance.OPEN) {
             client.send(JSON.stringify(this.packMessageForClient('BROADCAST-MESSAGE', message)), {binary: isBinary});

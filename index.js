@@ -10,11 +10,10 @@ const port = process.env.PORT || 3000;
 
 const wss = new WebSocket.Server({ server:server });
 
-// TODO: handleRuntimeInput()
 wsActions.websocketConnectionHandler(WebSocket, wss);
 
 app.get('/', (req, res) => res.sendStatus(403));
-// TODO: server endpoint
+app.get('/server', (req, res) => res.sendFile(path.join(__dirname, 'views/server.html')));
 app.get('/client', (req, res) => res.sendFile(path.join(__dirname, 'views/client.html')));
 
 app.use(express.static(path.join(__dirname)));
