@@ -12,11 +12,22 @@ const wss = new WebSocket.Server({ server:server });
 
 wsActions.websocketConnectionHandler(WebSocket, wss);
 
-app.get('/', (req, res) => res.sendStatus(403));
-app.get('/server', (req, res) => res.sendFile(path.join(__dirname, 'views/server.html')));
-app.get('/client', (req, res) => res.sendFile(path.join(__dirname, 'views/client.html')));
+app.set('view engine', 'pug')
+app.get('/', function (req, res) {
+    res.render('index', { port: port })
+  })
+  
+app.get('/server', function (req, res) {
+    res.render('server', { 
+        port: port,
+        wss: wss
+    })
+})
 
+
+app.get('/client', (req, res) => res.sendFile(path.join(__dirname, 'views', 'html-source', 'client.html')));
 app.use(express.static(path.join(__dirname)));
 app.use(express.static(path.join(__dirname, 'views')));
+app.use(express.static(path.join(__dirname, 'views', 'html-source')));
 
 server.listen(port, () => console.log(`Listening on port: ${port}`));
