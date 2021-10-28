@@ -10,12 +10,21 @@ exports.websocketConnectionHandler = (webSocketServer) => {
     webSocketServer.on('connection', function connection(ws, req) {
         ws.id = uuid.v4();
         
+        // Object: ServerInstance
+        // Object: ClientPool
+
+        // TODO: registerNewServer in ServerInstance
+
+        // TODO: sendMessageToClient => registerNewClient in ClientPool
         exports.sendMessageToClient(ws, message='Welcome New Client');
         console.log(`New Connection: ClientID=${ws.id}`);
+
+        exports.handleIncommingClientMessage(ws);
+        // TODO: handleIncommingServerMessage
+            // TODO: broadcastToClients
+
         
         // exports.broadcastToClients(webSocketServer = webSocketServer, message = 'this is a broadcast message', isBinary = false);
-        
-        exports.handleIncommingClientMessage(ws);
     });
 };
 
