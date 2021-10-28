@@ -30,3 +30,8 @@ app.use(express.static(path.join(__dirname, 'views')));
 app.use(express.static(path.join(__dirname, 'views', 'html-source')));
 
 server.listen(port, () => console.log(`Listening on port: ${port}`));
+
+exports.sendServerBroadcasts = (webSocketServer = wss, message = 'this is a broadcast message', isBinary = false) => {
+    console.log('sending broadcast via index');
+    wsActions.broadcastToClients(webSocketServer = wss, message = 'this is a broadcast message', isBinary = false);
+}

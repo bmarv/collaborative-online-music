@@ -7,10 +7,9 @@
   "scripts": {
     "start": "node index",
     "build-client": "npx browserify client.js -o dist/bundle-client.js",
-    "build-server": "npx browserify server.js -o dist/bundle-server.js",
     "build-dist": "npx concurrently 'npm run build-server' 'npm run build-client'",
     "dev-app": "npx nodemon index.js",
-    "dev": "npm run build-dist && npm run dev-app"
+    "dev": "npm run build-client && npm run dev-app"
   },
   "keywords": [],
   "author": "Marvin Beese",
