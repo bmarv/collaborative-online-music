@@ -4,25 +4,27 @@ const WebSocket = require('ws');
 const fileHandler = require('./fileHandler');
 const wsMessage = require('./wsMessage');
 
+exports.hostInstanceId = -1;
+let clientPoolArray = [];
 
 exports.websocketConnectionHandler = (webSocketServer) => {
 
-    var hostInstanceId = undefined;
-    let clientPoolList = [];
 
     webSocketServer.on('connection', function connection(ws, req) {
         ws.id = uuid.v4();
-        clientPoolList.push(ws.id);
+        clientPoolArray.push(ws.id);
 
-        console.log(`clientPoolList ${clientPoolList}`);
+        console.log(`clientPoolArray ${clientPoolArray}`);
         
         // TODO: registerNewServer in ServerInstance
 
         exports.initializeClient(ws = ws, receiverId = ws.id)
 
-        exports.handleIncommingClientMessage(ws);
-        // TODO: handleIncommingServerMessage
-            // TODO: broadcastToClients
+        hostAndClientConfigArray = exports.handleIncommingMessage(ws, exports.hostInstanceId, clientPoolArray);
+        hostInstanceId = hostAndClientConfigArray[0]
+        clientPoolArray = hostAndClientConfigArray[1]
+            // TODO: handleIncommingHostMessage
+                // TODO: broadcastToClients
 
         
         // exports.broadcastToClients(webSocketServer = webSocketServer, message = 'this is a broadcast message', isBinary = false);
@@ -31,14 +33,18 @@ exports.websocketConnectionHandler = (webSocketServer) => {
 
 exports.sendMessage = (ws, message) => ws.send(message);
 
-exports.handleIncommingClientMessage = (ws) => {
+exports.handleIncommingMessage = (ws, hostInstanceId, clientPoolArray) => {
     ws.on('message', function incoming(message) {
         if (typeof(message) === 'string'){
-
             unpackedMessage = wsMessage.unpackMessage(message);
             const messageType = unpackedMessage.messageType;
             const senderId = unpackedMessage.senderId;
             const senderType = unpackedMessage.senderType;
+            hostAndClientConfigArray = exports.setHostInstanceAndUpdateClientPoolArray(hostInstanceId, clientPoolArray, senderId, senderType)
+            hostInstanceId = hostAndClientConfigArray[0]
+            clientPoolArray = hostAndClientConfigArray[1]
+            console.log(`host: ${hostInstanceId}`);
+            console.log(`clientArr: ${clientPoolArray}`);
             if (messageType === 'Message'){
                 const messageContent = unpackedMessage.messageContent;
                 console.log(`received Message from ${senderType} <${senderId}>: ${messageContent}`);
@@ -58,6 +64,7 @@ exports.handleIncommingClientMessage = (ws) => {
             else console.log('ERR: unsupported Message');
         }
     });
+    return [hostInstanceId, clientPoolArray];
 };
 
 exports.initializeClient = (ws, receiverId) => {
@@ -89,5 +96,22 @@ exports.broadcastToClients = (webSocketServer, message, isBinary) => {
                 {binary: isBinary}
             )
         }
-    } )
+    });
 };
+
+exports.setHostInstanceAndUpdateClientPoolArray = (hostInstanceId, clientPoolArray, senderId, senderType) => {
+    console.log(`\t old hostInstanceId: ${hostInstanceId}`);
+    if (senderType === 'host') {
+        hostInstanceId = senderId;
+        exports.setHostInstanceId(hostInstanceId)
+        hostIdIndex = clientPoolArray.indexOf(senderId);
+        if (hostIdIndex !== -1){
+            clientPoolArray.splice(hostIdIndex, 1);
+        }
+        console.log(`\t new hostInstanceId: ${hostInstanceId}`);
+        return [hostInstanceId, clientPoolArray];
+    }
+    return [hostInstanceId, clientPoolArray];
+}
+
+exports.setHostInstanceId = (hostInstanceId) => exports.hostInstanceId = hostInstanceId;
