@@ -17,13 +17,14 @@ app.get('/', function (req, res) {
     res.render('index', { port: port })
   })
   
-app.get('/host', function (req, res) {
-    res.render('host', { 
-        wss: wss,
-    })
-})
+// app.get('/host', function (req, res) {
+//     res.render('host', { 
+//         wss: wss,
+//     })
+// })
 
 app.get('/client', (req, res) => res.sendFile(path.join(__dirname, 'views', 'html-source', 'client.html')));
+app.get('/host', (req, res) => res.sendFile(path.join(__dirname, 'views', 'html-source', 'host.html')));
 
 app.use(express.static(path.join(__dirname)));
 app.use(express.static(path.join(__dirname, 'views')));
