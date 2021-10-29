@@ -3,21 +3,24 @@ const bson = require('bson');
 const WebSocket = require('ws');
 
 const fileHandler = require('./fileHandler');
-
+const wsMessage = require('./wsMessage');
 const deserialize = bson.deserialize;
 
-exports.websocketConnectionHandler = (webSocketServer) => {   
+
+exports.websocketConnectionHandler = (webSocketServer) => {
+
+    var hostInstanceId = undefined;
+    let clientPoolList = [];
+
     webSocketServer.on('connection', function connection(ws, req) {
         ws.id = uuid.v4();
-        
-        // Object: ServerInstance
-        // Object: ClientPool
+        clientPoolList.push(ws.id);
 
+        console.log(`clientPoolList ${clientPoolList}`);
+        
         // TODO: registerNewServer in ServerInstance
 
-        // TODO: sendMessageToClient => registerNewClient in ClientPool
-        exports.sendMessageToClient(ws, message='Welcome New Client');
-        console.log(`New Connection: ClientID=${ws.id}`);
+        exports.initializeClient(ws = ws, receiverId = ws.id)
 
         exports.handleIncommingClientMessage(ws);
         // TODO: handleIncommingServerMessage
@@ -28,24 +31,20 @@ exports.websocketConnectionHandler = (webSocketServer) => {
     });
 };
 
-exports.packMessageForClient = (wsId, message) => {
-    const serverMessageObj = {
-        'id': wsId,
-        'message': message,
-    };
-    return serverMessageObj;
-}
-
-exports.sendMessageToClient = (ws, message) => {
-    const serverMessageObj = exports.packMessageForClient(ws.id, message)
-    ws.send(JSON.stringify(serverMessageObj));
-};
+exports.sendMessage = (ws, message) => ws.send(message);
 
 exports.handleIncommingClientMessage = (ws) => {
     ws.on('message', function incoming(message) {
         if (typeof(message) === 'string'){
-            console.log('received: %s', message);
-            // const clientMessageObj = JSON.parse(message);
+
+            unpackedMessage = wsMessage.unpackMessage(message);
+            const messageType = unpackedMessage.messageType;
+            const senderId = unpackedMessage.senderId;
+            const senderType = unpackedMessage.senderType;
+            if (messageType === 'Message'){
+                const messageContent = unpackedMessage.messageContent;
+                console.log(`received Message from ${senderType} <${senderId}>: ${messageContent}`);
+            }
         }
         else {
             console.log('received an other message');
@@ -56,10 +55,34 @@ exports.handleIncommingClientMessage = (ws) => {
     });
 };
 
+exports.initializeClient = (ws, receiverId) => {
+    const stringifiedMessage = wsMessage.stringifyMessage(
+        wsMessage.packMessage(
+            senderId = 'server',
+            senderType = 'server', 
+            receiverId = receiverId, 
+            messageType = 'Initiation', 
+            messageContent = 'Initiated Client'
+        )
+    );
+    exports.sendMessage(ws, stringifiedMessage)
+}
+            
 exports.broadcastToClients = (webSocketServer, message, isBinary) => {
     webSocketServer.clients.forEach( (client) => {
         if (client.readyState == WebSocket.OPEN) {
-            client.send(JSON.stringify(this.packMessageForClient('BROADCAST-MESSAGE', message)), {binary: isBinary});
+            client.send(
+                wsMessage.stringifyMessage(
+                    wsMessage.packMessage(
+                        senderId = 'server',
+                        senderType = 'server', 
+                        receiverId = client.id, 
+                        messageType = 'Broadcast', 
+                        messageContent = message
+                    )
+                ),
+                {binary: isBinary}
+            )
         }
     } )
 };
