@@ -1,6 +1,6 @@
 const bson = require('bson');
 
-exports.packMessage = (senderId, senderType, receiverId, messageType, messageContent) => {
+exports.packMessage = (senderId, senderType, receiverId, messageType, messageContent, additionalContent = false) => {
     const messageObject = {
         'senderId': senderId,
         'senderType': senderType,
@@ -8,6 +8,9 @@ exports.packMessage = (senderId, senderType, receiverId, messageType, messageCon
         'messageType': messageType,
         'messageContent': messageContent,
     };
+    if (additionalContent){
+        messageObject['additionalContent'] = additionalContent
+    }
     return messageObject;
 }
 

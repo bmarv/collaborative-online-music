@@ -1,10 +1,8 @@
 const uuid = require('uuid');
-const bson = require('bson');
 const WebSocket = require('ws');
 
 const fileHandler = require('./fileHandler');
 const wsMessage = require('./wsMessage');
-const deserialize = bson.deserialize;
 
 
 exports.websocketConnectionHandler = (webSocketServer) => {
@@ -47,10 +45,17 @@ exports.handleIncommingClientMessage = (ws) => {
             }
         }
         else {
-            console.log('received an other message');
-            const dataFromClient = deserialize(message, {promoteBuffers: true});
-            console.log(`client-id: ${(dataFromClient.id)} sended file: ${dataFromClient.fileName}`);
-            fileHandler.saveBinaryFileInServerDirectory(dataFromClient.fileName, dataFromClient.file, 'output');
+            const deserializedMessage = wsMessage.deserializeBsonMessage(message)
+            const messageType = deserializedMessage.messageType;
+            const senderId = deserializedMessage.senderId;
+            const senderType = deserializedMessage.senderType;
+            if (messageType === 'File') {
+                const messageContent = deserializedMessage.messageContent;
+                const fileName = deserializedMessage.additionalContent;
+                console.log(`received File from ${senderType} <${senderId}>: ${fileName}`);
+                fileHandler.saveBinaryFileInServerDirectory(fileName, messageContent, 'output');
+            }
+            else console.log('ERR: unsupported Message');
         }
     });
 };

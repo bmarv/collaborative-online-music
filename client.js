@@ -1,6 +1,5 @@
 const buffer = require('buffer');
 const bson = require('bson');
-const serialize = bson.serialize;
 const Buffer = buffer.Buffer
 const wsMessage = require('./utils/wsMessage');
 const port = process.env.PORT || 3000;
@@ -27,20 +26,21 @@ socket.addEventListener('message', function (event) {
 });
 
 // send Ping-Message to Server
-const sendMessage = (id = clientId, messageType = 'Message', message = 'Client-Message to the Server') => {
+const sendMessage = (id = clientId, messageType = 'Message', message = 'Client-Message to the Server', additionalContent = false) => {
     const packedMessage = wsMessage.packMessage(
         senderId = id,
         senderType = 'client', 
         receiverId = 'server', 
         messageType = messageType, 
-        messageContent = message
+        messageContent = message,
+        additionalContent = additionalContent
     );
     if (messageType === 'Message') {
         messageObject= wsMessage.stringifyMessage(packedMessage);
     }
-    // else if (messageType === 'File') {
-    //     messageObject = wsMessage.serializeBsonMessage(packedMessage);
-    // }
+    else if (messageType === 'File') {
+        messageObject = wsMessage.serializeBsonMessage(packedMessage);
+    }
     socket.send(messageObject);
 }
 window.sendMessage = sendMessage;
@@ -55,14 +55,7 @@ const sendFile = (id = clientId) => {
     reader.onload = (e = file) => {
         rawData = e.target.result;
         const bufferData = Buffer.from(rawData);
-        const bsonData = serialize({
-            id: id,
-            fileName: fileName,
-            file: bufferData,
-            route: 'TRANSFER',
-            action: 'FILE_UPLOAD',
-        });
-        socket.send(bsonData);
+        sendMessage(id = id, messageType = 'File', message= bufferData, additionalContent = fileName)
     };
     reader.readAsArrayBuffer(file);
 }
