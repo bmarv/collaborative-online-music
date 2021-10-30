@@ -43,3 +43,18 @@ const sendMessage = (id = hostId, messageType = 'Message', message = 'Host-Messa
     socket.send(messageObject);
 }
 window.sendMessage = sendMessage;
+
+// send Broadcast via Server to Clients
+const sendBroadcast = (message = 'Broadcast from Host', additionalContent = false) => {
+    const packedMessage = wsMessage.packMessage(
+        senderId = hostId,
+        senderType = 'host', 
+        receiverId = 'server', 
+        messageType = 'Broadcast', 
+        messageContent = message,
+        additionalContent = additionalContent
+    );
+    messageObject= wsMessage.stringifyMessage(packedMessage);
+    socket.send(messageObject);
+}
+window.sendBroadcast = sendBroadcast;

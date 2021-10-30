@@ -16,29 +16,29 @@ exports.websocketConnectionHandler = (webSocketServer) => {
 
         exports.initializeClient(ws = ws, receiverId = ws.id)
 
-        exports.handleIncommingMessage(ws, exports.hostInstanceId, exports.clientPoolArray);
-            // TODO: broadcastHostToClients
+        exports.handleIncommingMessage(webSocketServer, ws, exports.hostInstanceId, exports.clientPoolArray);
 
-        
-        // exports.broadcastToClients(webSocketServer = webSocketServer, message = 'this is a broadcast message', isBinary = false);
     });
 };
 
 exports.sendMessage = (ws, message) => ws.send(message);
 
-exports.handleIncommingMessage = (ws, hostInstanceId, clientPoolArray) => {
+exports.handleIncommingMessage = (webSocketServer, ws, hostInstanceId, clientPoolArray) => {
     ws.on('message', function incoming(message) {
         if (typeof(message) === 'string'){
             unpackedMessage = wsMessage.unpackMessage(message);
-            const messageType = unpackedMessage.messageType;
             const senderId = unpackedMessage.senderId;
             const senderType = unpackedMessage.senderType;
+            const messageType = unpackedMessage.messageType;
+            const messageContent = unpackedMessage.messageContent;
             if (messageType === 'Registering') {
                 exports.setHostInstanceAndUpdateClientPoolArray(hostInstanceId, clientPoolArray, senderId, senderType)              
             }
             else if (messageType === 'Message'){
-                const messageContent = unpackedMessage.messageContent;
                 console.log(`received Message from ${senderType} <${senderId}>: ${messageContent}`);
+            }
+            else if (senderType === 'host' && messageType === 'Broadcast') {
+                exports.broadcastToClients(webSocketServer = webSocketServer, message = messageContent, isBinary = false);
             }
         }
         else {
@@ -73,18 +73,20 @@ exports.initializeClient = (ws, receiverId) => {
 exports.broadcastToClients = (webSocketServer, message, isBinary) => {
     webSocketServer.clients.forEach( (client) => {
         if (client.readyState == WebSocket.OPEN) {
-            client.send(
-                wsMessage.stringifyMessage(
-                    wsMessage.packMessage(
-                        senderId = 'server',
-                        senderType = 'server', 
-                        receiverId = client.id, 
-                        messageType = 'Broadcast', 
-                        messageContent = message
-                    )
-                ),
-                {binary: isBinary}
-            )
+            if (exports.clientPoolArray.includes(client.id)){
+                client.send(
+                    wsMessage.stringifyMessage(
+                        wsMessage.packMessage(
+                            senderId = 'server',
+                            senderType = 'server', 
+                            receiverId = client.id, 
+                            messageType = 'Broadcast', 
+                            messageContent = message
+                        )
+                    ),
+                    {binary: isBinary}
+                )
+            }
         }
     });
 };
