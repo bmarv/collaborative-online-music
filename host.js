@@ -58,3 +58,9 @@ const sendBroadcast = (message = 'Broadcast from Host', additionalContent = fals
     socket.send(messageObject);
 }
 window.sendBroadcast = sendBroadcast;
+
+const sendBroadcastStart = (message = 'Broadcast from Host: Start', additionalContent = false) => sendBroadcast(message, additionalContent);
+window.sendBroadcastStart = sendBroadcastStart;
+
+const sendBroadcastStop = (message = 'Broadcast from Host: Stop', additionalContent = false) => sendBroadcast(message, additionalContent);
+window.sendBroadcastStop = sendBroadcastStop;

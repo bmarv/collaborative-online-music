@@ -69,6 +69,7 @@ exports.initializeClient = (ws, receiverId) => {
 }
             
 exports.broadcastToClients = (webSocketServer, message, isBinary) => {
+    console.log(`Broadcast Message from Host: ${message}`);  
     webSocketServer.clients.forEach( (client) => {
         if (client.readyState == WebSocket.OPEN) {
             if (exports.clientPoolArray.includes(client.id)){
