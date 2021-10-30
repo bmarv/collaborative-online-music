@@ -16,14 +16,12 @@ exports.websocketConnectionHandler = (webSocketServer) => {
 
         exports.initializeClient(ws = ws, receiverId = ws.id)
 
-        exports.handleIncommingMessage(webSocketServer, ws, exports.hostInstanceId, exports.clientPoolArray);
+        exports.communicationService(webSocketServer, ws);
 
     });
 };
 
-exports.sendMessage = (ws, message) => ws.send(message);
-
-exports.handleIncommingMessage = (webSocketServer, ws, hostInstanceId, clientPoolArray) => {
+exports.communicationService = (webSocketServer, ws) => {
     ws.on('message', function incoming(message) {
         if (typeof(message) === 'string'){
             unpackedMessage = wsMessage.unpackMessage(message);
@@ -32,7 +30,7 @@ exports.handleIncommingMessage = (webSocketServer, ws, hostInstanceId, clientPoo
             const messageType = unpackedMessage.messageType;
             const messageContent = unpackedMessage.messageContent;
             if (messageType === 'Registering') {
-                exports.setHostInstanceAndUpdateClientPoolArray(hostInstanceId, clientPoolArray, senderId, senderType)              
+                exports.setHostInstanceAndUpdateClientPoolArray(senderId, senderType)              
             }
             else if (messageType === 'Message'){
                 console.log(`received Message from ${senderType} <${senderId}>: ${messageContent}`);
@@ -91,7 +89,7 @@ exports.broadcastToClients = (webSocketServer, message, isBinary) => {
     });
 };
 
-exports.setHostInstanceAndUpdateClientPoolArray = (hostInstanceId, clientPoolArray, senderId, senderType) => {
+exports.setHostInstanceAndUpdateClientPoolArray = (senderId, senderType) => {
     if (senderType === 'host') {
         hostInstanceId = senderId;
         exports.hostInstanceId = hostInstanceId;
@@ -103,3 +101,5 @@ exports.setHostInstanceAndUpdateClientPoolArray = (hostInstanceId, clientPoolArr
     console.log(`\t updated host: ${exports.hostInstanceId}`);
     console.log(`\t updated clients: ${exports.clientPoolArray}`);
 }
+
+exports.sendMessage = (ws, message) => ws.send(message);
