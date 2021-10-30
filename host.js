@@ -18,7 +18,10 @@ socket.addEventListener('message', function (event) {
     const messageType = serverDataObj.messageType;
     const messageContent = serverDataObj.messageContent;
     console.log('Message from server ', serverDataObj);
-    if (messageType === 'Initiation') { document.getElementById("hostIDText").innerHTML = hostId; }
+    if (messageType === 'Initiation') { 
+        document.getElementById("hostIDText").innerHTML = hostId; 
+        sendMessage(hostId,'Registering','Host Registration');
+    }
 });
 
 // send Ping-Message to Server
@@ -31,7 +34,7 @@ const sendMessage = (id = hostId, messageType = 'Message', message = 'Host-Messa
         messageContent = message,
         additionalContent = additionalContent
     );
-    if (messageType === 'Message') {
+    if (messageType === 'Message' || messageType === 'Registering') {
         messageObject= wsMessage.stringifyMessage(packedMessage);
     }
     else if (messageType === 'File') {

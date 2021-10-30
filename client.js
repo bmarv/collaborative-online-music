@@ -21,7 +21,10 @@ socket.addEventListener('message', function (event) {
     const messageType = serverDataObj.messageType;
     const messageContent = serverDataObj.messageContent;
     console.log('Message from server ', serverDataObj);
-    if (messageType === 'Initiation') { document.getElementById("clientIDText").innerHTML = clientId; }
+    if (messageType === 'Initiation') { 
+        document.getElementById("clientIDText").innerHTML = clientId; 
+        sendMessage(clientId,'Registering','Client Registration');
+    }
     document.getElementById("serverMessageTextArea").value = `Server-Message: ${messageContent}`;
 });
 
@@ -35,7 +38,7 @@ const sendMessage = (id = clientId, messageType = 'Message', message = 'Client-M
         messageContent = message,
         additionalContent = additionalContent
     );
-    if (messageType === 'Message') {
+    if (messageType === 'Message' || messageType === 'Registering') {
         messageObject= wsMessage.stringifyMessage(packedMessage);
     }
     else if (messageType === 'File') {
