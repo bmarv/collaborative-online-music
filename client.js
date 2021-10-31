@@ -1,5 +1,6 @@
 const buffer = require('buffer');
 const bson = require('bson');
+const RecordRTC = require('recordrtc');
 const Buffer = buffer.Buffer
 const wsMessage = require('./utils/wsMessage');
 const port = process.env.PORT || 3000;
@@ -63,3 +64,32 @@ const sendFile = (id = clientId) => {
     reader.readAsArrayBuffer(file);
 }
 window.sendFile = sendFile;
+
+function recordClientOnSuccess(stream) {
+    document.querySelector('video').srcObject = stream;
+    document.querySelector('video').muted = true;
+
+    let recorder = RecordRTC(stream, {
+        type: 'video'
+    });
+    recorder.startRecording();
+
+    setTimeout(function() {
+        recorder.stopRecording(function() {
+            let blob = recorder.getBlob();
+            let url = URL.createObjectURL(blob);
+            document.querySelector('video').src = url;
+            RecordRTC.invokeSaveAsDialog(blob)
+            // recorder.save('video-record.webm');
+        });
+    }, 5 * 1000);
+    document.querySelector('video').muted = true;
+};
+
+function errorCallbackForRecordingClient(error) {
+    alert(error);
+}
+
+const mediaConstraints = { video: true, audio: true };
+
+navigator.mediaDevices.getUserMedia(mediaConstraints).then(recordClientOnSuccess).catch(errorCallbackForRecordingClient);
