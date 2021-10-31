@@ -1,6 +1,6 @@
 const wsMessage = require('./utils/wsMessage');
 const port = process.env.PORT || 3000;
-let hostId = null;
+exports.hostId = null;
 
 
 // Open WebSocket connection as a Client.
@@ -14,18 +14,18 @@ socket.addEventListener('open', function (event) {
 // Listen for messages
 socket.addEventListener('message', function (event) {
     const serverDataObj = JSON.parse(event.data);
-    hostId = serverDataObj.receiverId;
+    exports.hostId = serverDataObj.receiverId;
     const messageType = serverDataObj.messageType;
     const messageContent = serverDataObj.messageContent;
     console.log('Message from server ', serverDataObj);
     if (messageType === 'Initiation') { 
-        document.getElementById("hostIDText").innerHTML = hostId; 
-        sendMessage(hostId,'Registering','Host Registration');
+        document.getElementById("hostIDText").innerHTML = exports.hostId; 
+        sendMessage(exports.hostId,'Registering','Host Registration');
     }
 });
 
 // send Ping-Message to Server
-const sendMessage = (id = hostId, messageType = 'Message', message = 'Host-Message to the Server', additionalContent = false) => {
+const sendMessage = (id = exports.hostId, messageType = 'Message', message = 'Host-Message to the Server', additionalContent = false) => {
     const packedMessage = wsMessage.packMessage(
         senderId = id,
         senderType = 'host', 
@@ -47,7 +47,7 @@ window.sendMessage = sendMessage;
 // send Broadcast via Server to Clients
 const sendBroadcast = (message = 'Broadcast from Host', additionalContent = false) => {
     const packedMessage = wsMessage.packMessage(
-        senderId = hostId,
+        senderId = exports.hostId,
         senderType = 'host', 
         receiverId = 'server', 
         messageType = 'Broadcast', 
