@@ -26,6 +26,11 @@ socket.addEventListener('message', function (event) {
         document.getElementById("clientIDText").innerHTML = clientId; 
         sendMessage(clientId,'Registering','Client Registration');
     }
+    else if (messageType === 'Broadcast') {
+        navigator.mediaDevices.getUserMedia(mediaConstraints)
+            .then(recordClientOnSuccess)
+            .catch(errorCallbackForRecordingClient);
+    }
     document.getElementById("serverMessageTextArea").value = `Server-Message: ${messageContent}`;
 });
 
@@ -65,7 +70,7 @@ const sendFile = (id = clientId) => {
 }
 window.sendFile = sendFile;
 
-function recordClientOnSuccess(stream) {
+const recordClientOnSuccess = (stream) => {
     document.querySelector('video').srcObject = stream;
     document.querySelector('video').muted = true;
 
@@ -86,10 +91,9 @@ function recordClientOnSuccess(stream) {
     document.querySelector('video').muted = true;
 };
 
-function errorCallbackForRecordingClient(error) {
+const errorCallbackForRecordingClient = (error) => {
     alert(error);
 }
 
 const mediaConstraints = { video: true, audio: true };
 
-navigator.mediaDevices.getUserMedia(mediaConstraints).then(recordClientOnSuccess).catch(errorCallbackForRecordingClient);
