@@ -3,7 +3,6 @@ const path = require('path');
 const WebSocket = require('ws');
 
 const wsActions = require('./utils/wsActions');
-const metronome = require('./utils/metronome');
 
 const app = express();
 const server = require('http').createServer(app);
@@ -12,22 +11,11 @@ const port = process.env.PORT || 3000;
 const wss = new WebSocket.Server({ server:server });
 
 wsActions.websocketConnectionHandler(wss);
-new Promise(res => metronome.startMetronome(
-  bpm = 80,
-  tact = {'tactNominator': 3, 'tactDenominator': 4},
-  audio = true
-));
 
 app.set('view engine', 'pug')
 app.get('/', function (req, res) {
     res.render('index', { port: port })
   })
-  
-// app.get('/host', function (req, res) {
-//     res.render('host', { 
-//         wss: wss,
-//     })
-// })
 
 app.get('/client', (req, res) => res.sendFile(path.join(__dirname, 'views', 'html-source', 'client.html')));
 app.get('/host', (req, res) => res.sendFile(path.join(__dirname, 'views', 'html-source', 'host.html')));

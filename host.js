@@ -1,4 +1,6 @@
 const wsMessage = require('./utils/wsMessage');
+const metronome = require('./utils/metronome');
+
 const port = process.env.PORT || 3000;
 exports.hostId = null;
 
@@ -64,3 +66,10 @@ window.sendBroadcastStart = sendBroadcastStart;
 
 const sendBroadcastStop = (message = 'Broadcast from Host: Stop', additionalContent = false) => sendBroadcast(message, additionalContent);
 window.sendBroadcastStop = sendBroadcastStop;
+
+
+new Promise(res => metronome.startMetronome(
+    bpm = 80,
+    tact = {'tactNominator': 3, 'tactDenominator': 4},
+    audio = true
+  ));

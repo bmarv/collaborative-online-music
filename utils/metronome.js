@@ -1,4 +1,4 @@
-const soundPlay = require('sound-play');
+const {Howl} = require('howler');
 
 exports.startMetronome = async (bpm = 60, tact = {'tactNominator': 4, 'tactDenominator': 4}, audio = true) => {
     bpmTimeout = (1 / bpm) * 60000;
@@ -19,9 +19,15 @@ exports.startMetronome = async (bpm = 60, tact = {'tactNominator': 4, 'tactDenom
 
 exports.playBeat = (beatType = 'groundBeat') => {
     if (beatType === 'groundBeat') {
-        soundPlay.play('res/sounds/tick.wav');
+        var sound = new Howl({
+            src: ['res/sounds/tick.wav']
+        });
+        sound.play();
     }
     else if (beatType === 'beat') {
-        soundPlay.play('res/sounds/tock.wav');
+        var sound = new Howl({
+            src: ['res/sounds/tock.wav']
+        });
+        sound.play();
     }
 }
