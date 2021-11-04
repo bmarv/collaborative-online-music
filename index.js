@@ -12,11 +12,11 @@ const port = process.env.PORT || 3000;
 const wss = new WebSocket.Server({ server:server });
 
 wsActions.websocketConnectionHandler(wss);
-metronome.startMetronome(
+new Promise(res => metronome.startMetronome(
   bpm = 80,
   tact = {'tactNominator': 3, 'tactDenominator': 4},
   audio = true
-);
+));
 
 app.set('view engine', 'pug')
 app.get('/', function (req, res) {
