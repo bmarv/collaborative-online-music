@@ -70,9 +70,9 @@ const sendBroadcastStop = (message = 'Broadcast from Host: Stop', additionalCont
 window.sendBroadcastStop = sendBroadcastStop;
 
 const startMetronome = async() => {
-    const bpmInput = document.getElementById('bpmInput').value;
-    const nominatorInput = document.getElementById('nominatorInput').value;
-    const denominatorInput = document.getElementById('denominatorInput').value;
+    const bpmInput = Number(document.getElementById('bpmInput').value);
+    const nominatorInput = Number(document.getElementById('nominatorInput').value);
+    const denominatorInput = Number(document.getElementById('denominatorInput').value);
 
     // visual container
     const metronomeIconsContainer = document.getElementById('metronomeIconsContainer');
@@ -89,7 +89,7 @@ const startMetronome = async() => {
         metronomeIconsContainer.appendChild(newBubbleElement);
     }
 
-    // if (Number.isInteger(bpmInput) && Number.isInteger(nominatorInput) && Number.isInteger(denominatorInput)) {
+    if (Number.isInteger(bpmInput) && Number.isInteger(nominatorInput) && Number.isInteger(denominatorInput)) {
         exports.metronomeInstanceActive = true;
         let clockTicks = 0;
         tact = {'tactNominator': nominatorInput, 'tactDenominator': denominatorInput};
@@ -124,5 +124,9 @@ const startMetronome = async() => {
                 }
             );
         }
+    }
+    else {
+        alert('The Metronome Input needs to be of the Type: Integer');
+    }
 }
 window.startMetronome = startMetronome;
