@@ -3,6 +3,7 @@ const metronome = require('./utils/metronome');
 
 const port = process.env.PORT || 3000;
 exports.hostId = null;
+exports.metronomeInstanceActive = false;
 
 
 // Open WebSocket connection as a Client.
@@ -67,9 +68,37 @@ window.sendBroadcastStart = sendBroadcastStart;
 const sendBroadcastStop = (message = 'Broadcast from Host: Stop', additionalContent = false) => sendBroadcast(message, additionalContent);
 window.sendBroadcastStop = sendBroadcastStop;
 
+const startMetronome = async() => {
+    const bpmInput = document.getElementById('bpmInput').value;
+    const nominatorInput = document.getElementById('nominatorInput').value;
+    const denominatorInput = document.getElementById('denominatorInput').value;
 
-new Promise(res => metronome.startMetronome(
-    bpm = 80,
-    tact = {'tactNominator': 3, 'tactDenominator': 4},
-    audio = true
-  ));
+
+    // if (Number.isInteger(bpmInput) && Number.isInteger(nominatorInput) && Number.isInteger(denominatorInput)) {
+        const metronomeTimeout = metronome.setMetronomeTimeout(
+            bpm = bpmInput,
+            tact = {'tactNominator': nominatorInput, 'tactDenominator': denominatorInput}
+        );
+        exports.metronomeInstanceActive = true;
+        let clockTicks = 0;
+        while (exports.metronomeInstanceActive === true){
+            // stop Metronome on Button Click
+            document.getElementById('stopMetronomeButton').addEventListener(
+                'click', 
+                () => {
+                    exports.metronomeInstanceActive = false
+                }
+            );
+            await new Promise(r => setTimeout(r, metronomeTimeout));
+            if (Number.isInteger(clockTicks / tact['tactNominator'])) {
+                console.log('TICK');
+                metronome.playBeat(beatType = 'groundBeat');
+            }
+            else {
+                console.log('\ttock');
+                metronome.playBeat(beatType = 'beat');
+            } 
+            clockTicks += 1;
+        }
+}
+window.startMetronome = startMetronome;

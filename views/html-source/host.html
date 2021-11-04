@@ -4,14 +4,29 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="style/client-style.css">
         <title>Collaborative Online Music - Host</title>
     </head>
     <body>
         <h1>Welcome Host: <span id="hostIDText"></span></h1>
-        <button onclick="sendMessage()">Send msg</button>
-        <br\>
+        <button onclick="sendMessage()">Send Message</button>
+        <br>
         <button onclick="sendBroadcastStart()">Broadcast: Start</button>
         <button onclick="sendBroadcastStop()">Broadcast: Stop</button>
+        <br>
+        <h2>Metronome</h2>
+        bpm:<input type="number" id="bpmInput" min="0" size="5"/>
+        <br>
+        beat: nominator  : <input type="number" id="nominatorInput" min="0" size="5"/>
+        <br>
+        beat: denominator: <input type="number" id="denominatorInput" min="0" size="5"/>
+        <br>
+        <button onclick="startMetronome()">Start Metronome</button>
+        <button id="stopMetronomeButton">Stop Metronome</button>
+        <!-- <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>  -->
     </body>
     <script src="./../dist/bundle-host.js" type="text/javascript"></script>
 </html>
