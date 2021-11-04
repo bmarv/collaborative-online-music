@@ -75,13 +75,21 @@ const startMetronome = async() => {
 
 
     // if (Number.isInteger(bpmInput) && Number.isInteger(nominatorInput) && Number.isInteger(denominatorInput)) {
-        const metronomeTimeout = metronome.setMetronomeTimeout(
-            bpm = bpmInput,
-            tact = {'tactNominator': nominatorInput, 'tactDenominator': denominatorInput}
-        );
         exports.metronomeInstanceActive = true;
         let clockTicks = 0;
+        tact = {'tactNominator': nominatorInput, 'tactDenominator': denominatorInput};
+        let metronomeTimeout = metronome.setMetronomeTimeout(
+            bpm = bpmInput,
+            tact = tact
+        );
         while (exports.metronomeInstanceActive === true){
+            // run one metronome Iteration
+            clockTicks = await metronome.runOneMetronomeIteration(
+                metronomeTimeout = metronomeTimeout,
+                tact = tact,
+                clockTicks = clockTicks
+            )
+
             // stop Metronome on Button Click
             document.getElementById('stopMetronomeButton').addEventListener(
                 'click', 
@@ -89,16 +97,6 @@ const startMetronome = async() => {
                     exports.metronomeInstanceActive = false
                 }
             );
-            await new Promise(r => setTimeout(r, metronomeTimeout));
-            if (Number.isInteger(clockTicks / tact['tactNominator'])) {
-                console.log('TICK');
-                metronome.playBeat(beatType = 'groundBeat');
-            }
-            else {
-                console.log('\ttock');
-                metronome.playBeat(beatType = 'beat');
-            } 
-            clockTicks += 1;
         }
 }
 window.startMetronome = startMetronome;
