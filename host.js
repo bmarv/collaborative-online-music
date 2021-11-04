@@ -4,6 +4,7 @@ const metronome = require('./utils/metronome');
 const port = process.env.PORT || 3000;
 exports.hostId = null;
 exports.metronomeInstanceActive = false;
+exports.metronomeInstanceSoundActive = true;
 
 
 // Open WebSocket connection as a Client.
@@ -73,6 +74,20 @@ const startMetronome = async() => {
     const nominatorInput = document.getElementById('nominatorInput').value;
     const denominatorInput = document.getElementById('denominatorInput').value;
 
+    // visual container
+    const metronomeIconsContainer = document.getElementById('metronomeIconsContainer');
+    // delete lastly used Elements
+    metronomeIconsContainer.innerHTML = '';
+
+    bubbleElementsArray = []
+    // create Elements
+    for (let index = 0; index < nominatorInput; index += 1){
+        const newBubbleElement = document.createElement('span');
+        newBubbleElement.className = 'dot';
+        newBubbleElement.id = `metronomeIcon-${index}`;
+        bubbleElementsArray.push(newBubbleElement);
+        metronomeIconsContainer.appendChild(newBubbleElement);
+    }
 
     // if (Number.isInteger(bpmInput) && Number.isInteger(nominatorInput) && Number.isInteger(denominatorInput)) {
         exports.metronomeInstanceActive = true;
@@ -87,14 +102,25 @@ const startMetronome = async() => {
             clockTicks = await metronome.runOneMetronomeIteration(
                 metronomeTimeout = metronomeTimeout,
                 tact = tact,
-                clockTicks = clockTicks
+                clockTicks = clockTicks,
+                soundActive = exports.metronomeInstanceSoundActive,
+                bubbleElementsArray = bubbleElementsArray
             )
+            // mute Metronome
+            document.getElementById('muteMetronomeButton').addEventListener(
+                'click', 
+                () => {
+                    exports.metronomeInstanceSoundActive = ! exports.metronomeInstanceSoundActive;
+                }
+            );
+
 
             // stop Metronome on Button Click
             document.getElementById('stopMetronomeButton').addEventListener(
                 'click', 
                 () => {
-                    exports.metronomeInstanceActive = false
+                    exports.metronomeInstanceActive = false;
+                    metronomeIconsContainer.innerHTML = '';
                 }
             );
         }
