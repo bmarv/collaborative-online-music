@@ -1,16 +1,23 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <link rel="stylesheet" href="style/client-style.css">
         <title>Collaborative Online Music - Client</title>
     </head>
     <body>
         <h1>Welcome Client: <span id="clientIDText"></span></h1>
         <textarea id="serverMessageTextArea" rows="1" cols="150"></textarea>
-        <br/>
+        <br>
         <button onclick="sendMessage()">Send Msg</button>
         <input type="file" id="fileInput" onchange="sendFile()"/>
-        <br/>
-        <video controls autoplay></video>
+        <br>
+        <h2>Metronome</h2>
+        <button id="stopMetronomeButton">Stop Metronome</button>
+        <button id="muteMetronomeButton">Mute</button>
+        <br>
+        <div id="metronomeIconsContainer"></div>
+        <br>
+        <video autoplay></video>
     </body>
     <script src="./../../dist/bundle-client.js" type="text/javascript"></script>
 </html>

@@ -8,6 +8,7 @@ exports.metronomeInstanceSoundActive = true;
 exports.bpmInput = null;
 exports.nominatorInput = null;
 exports.denominatorInput = null;
+// TODO: METRONOME CONSTRAINTS
 // exports.metronomeConstraints = null;
 exports.metronomeConstraints = {
     'bpm': 63,
@@ -72,6 +73,8 @@ const sendBroadcast = (message = 'Broadcast from Host', additionalContent = fals
 }
 window.sendBroadcast = sendBroadcast;
 
+
+// TODO: UNIFY BROADCAST MESSAGE
 // const sendBroadcastStart = (message = 'Broadcast from Host: Start', additionalContent = false) => sendBroadcast(message, additionalContent);
 const sendBroadcastStart = (message = 'Broadcast from Host: Start Metronome', additionalContent = exports.metronomeConstraints) => sendBroadcast(message, additionalContent);
 window.sendBroadcastStart = sendBroadcastStart;
@@ -95,7 +98,7 @@ const startMetronome = async() => {
     // delete lastly used Elements
     metronomeIconsContainer.innerHTML = '';
 
-    bubbleElementsArray = []
+    let bubbleElementsArray = []
     // create Elements
     for (let index = 0; index < exports.nominatorInput; index += 1){
         const newBubbleElement = document.createElement('span');
@@ -106,9 +109,10 @@ const startMetronome = async() => {
     }
 
     if (Number.isInteger(exports.bpmInput) && Number.isInteger(exports.nominatorInput) && Number.isInteger(exports.denominatorInput)) {
+        // activate metronome
         exports.metronomeInstanceActive = true;
         let clockTicks = 0;
-        tact = {'tactNominator': exports.nominatorInput, 'tactDenominator': exports.denominatorInput};
+        let tact = {'tactNominator': exports.nominatorInput, 'tactDenominator': exports.denominatorInput};
         let metronomeTimeout = metronome.setMetronomeTimeout(
             bpm = exports.bpmInput,
             tact = tact
