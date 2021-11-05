@@ -8,14 +8,7 @@ exports.metronomeInstanceSoundActive = true;
 exports.bpmInput = null;
 exports.nominatorInput = null;
 exports.denominatorInput = null;
-// TODO: METRONOME CONSTRAINTS
-// exports.metronomeConstraints = null;
-exports.metronomeConstraints = {
-    'bpm': 63,
-    'nominator': 2, 
-    'denominator': 4
-};
-
+exports.metronomeConstraints = null;
 
 // Open WebSocket connection as a Client.
 const socket = new WebSocket(`ws://localhost:${port}`);
