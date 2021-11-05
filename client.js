@@ -2,10 +2,19 @@ const buffer = require('buffer');
 const bson = require('bson');
 const RecordRTC = require('recordrtc');
 const Buffer = buffer.Buffer
+
 const wsMessage = require('./utils/wsMessage');
+const metronome = require('./utils/metronome');
+
 const port = process.env.PORT || 3000;
+
 exports.clientId = null;
 exports.recorder = -1;
+exports.metronomeInstanceActive = false;
+exports.metronomeInstanceSoundActive = true;
+exports.bpmInput = null;
+exports.nominatorInput = null;
+exports.denominatorInput = null;
 
 // Open WebSocket connection as a Client.
 const socket = new WebSocket(`ws://localhost:${port}`);
@@ -28,11 +37,20 @@ socket.addEventListener('message', function (event) {
     }
     else if (messageType === 'Broadcast') {
         if (messageContent === 'Broadcast from Host: Start') {
+            console.log('START METRONOME');
+            let additionalContent = serverDataObj.additionalContent;
+            exports.bpmInput = additionalContent.bpm;
+            exports.nominatorInput = additionalContent.nominator;
+            exports.denominatorInput = additionalContent.denominator;
+    
+            startClientMetronome();
             navigator.mediaDevices.getUserMedia(mediaConstraints)
-                .then(startVideoRecording)
-                .catch(errorCallbackVideoStream);
+            .then(startVideoRecording)
+            .catch(errorCallbackVideoStream);
         }
         else if (messageContent === 'Broadcast from Host: Stop') {
+            console.log('STOP METRONOME');
+            exports.metronomeInstanceActive = false;
             navigator.mediaDevices.getUserMedia(mediaConstraints)
                 .then(stopVideoRecording)
                 .catch(errorCallbackVideoStream);
@@ -94,7 +112,7 @@ const stopVideoRecording = (stream) => {
         let blob = exports.recorder.getBlob();
         let url = URL.createObjectURL(blob);
         document.querySelector('video').src = url;
-        RecordRTC.invokeSaveAsDialog(blob);
+        RecordRTC.invokeSaveAsDialog(blob, fileName = `${exports.clientId}___${new Date().toLocaleString()}.mp4`);
     });
 };
 
@@ -107,3 +125,57 @@ const mediaConstraints = { video: true, audio: true };
 navigator.mediaDevices.getUserMedia(mediaConstraints)
             .then(streamWebcamVideoToBrowserClient)
             .catch(errorCallbackVideoStream);
+
+const startClientMetronome = async() => {
+    // visual container
+    const metronomeIconsContainer = document.getElementById('metronomeIconsContainer');
+    // delete lastly used Elements
+    metronomeIconsContainer.innerHTML = '';
+
+    let bubbleElementsArray = []
+    // create Elements
+    for (let index = 0; index < exports.nominatorInput; index += 1){
+        const newBubbleElement = document.createElement('span');
+        newBubbleElement.className = 'dot';
+        newBubbleElement.id = `metronomeIcon-${index}`;
+        bubbleElementsArray.push(newBubbleElement);
+        metronomeIconsContainer.appendChild(newBubbleElement);
+    }
+    // activate metronome
+    exports.metronomeInstanceActive = true;
+    let clockTicks = 0;
+    let tact = {'tactNominator': exports.nominatorInput, 'tactDenominator': exports.denominatorInput};
+    let metronomeTimeout = metronome.setMetronomeTimeout(
+        bpm = exports.bpmInput,
+        tact = tact
+    );
+    while (exports.metronomeInstanceActive === true){
+        // run one metronome Iteration
+        clockTicks = await metronome.runOneMetronomeIteration(
+            metronomeTimeout = metronomeTimeout,
+            tact = tact,
+            clockTicks = clockTicks,
+            soundActive = exports.metronomeInstanceSoundActive,
+            bubbleElementsArray = bubbleElementsArray
+        )
+        // mute Metronome
+        document.getElementById('muteMetronomeButton').addEventListener(
+            'click', 
+            () => {
+                exports.metronomeInstanceSoundActive = ! exports.metronomeInstanceSoundActive;
+            }
+        );
+
+        // stop Metronome on Button Click
+        document.getElementById('stopMetronomeButton').addEventListener(
+            'click', 
+            () => {
+                exports.metronomeInstanceActive = false;
+                metronomeIconsContainer.innerHTML = '';
+            }
+        );
+    }
+    if (exports.metronomeInstanceActive === false){
+        metronomeIconsContainer.innerHTML = '';
+    }
+}

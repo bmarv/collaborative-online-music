@@ -1,7 +1,14 @@
 const wsMessage = require('./utils/wsMessage');
+const metronome = require('./utils/metronome');
+
 const port = process.env.PORT || 3000;
 exports.hostId = null;
-
+exports.metronomeInstanceActive = false;
+exports.metronomeInstanceSoundActive = true;
+exports.bpmInput = null;
+exports.nominatorInput = null;
+exports.denominatorInput = null;
+exports.metronomeConstraints = null;
 
 // Open WebSocket connection as a Client.
 const socket = new WebSocket(`ws://localhost:${port}`);
@@ -59,8 +66,78 @@ const sendBroadcast = (message = 'Broadcast from Host', additionalContent = fals
 }
 window.sendBroadcast = sendBroadcast;
 
-const sendBroadcastStart = (message = 'Broadcast from Host: Start', additionalContent = false) => sendBroadcast(message, additionalContent);
+
+// TODO: UNIFY BROADCAST MESSAGE
+const sendBroadcastStart = (message = 'Broadcast from Host: Start', additionalContent = exports.metronomeConstraints) => sendBroadcast(message, additionalContent);
 window.sendBroadcastStart = sendBroadcastStart;
 
 const sendBroadcastStop = (message = 'Broadcast from Host: Stop', additionalContent = false) => sendBroadcast(message, additionalContent);
 window.sendBroadcastStop = sendBroadcastStop;
+
+const startMetronome = async() => {
+    exports.bpmInput = Number(document.getElementById('bpmInput').value);
+    exports.nominatorInput = Number(document.getElementById('nominatorInput').value);
+    exports.denominatorInput = Number(document.getElementById('denominatorInput').value);
+    exports.metronomeConstraints = {
+        'bpm': exports.bpmInput,
+        'nominator': exports.nominatorInput, 
+        'denominator': exports.denominatorInput
+    };
+
+    // visual container
+    const metronomeIconsContainer = document.getElementById('metronomeIconsContainer');
+    // delete lastly used Elements
+    metronomeIconsContainer.innerHTML = '';
+
+    let bubbleElementsArray = []
+    // create Elements
+    for (let index = 0; index < exports.nominatorInput; index += 1){
+        const newBubbleElement = document.createElement('span');
+        newBubbleElement.className = 'dot';
+        newBubbleElement.id = `metronomeIcon-${index}`;
+        bubbleElementsArray.push(newBubbleElement);
+        metronomeIconsContainer.appendChild(newBubbleElement);
+    }
+
+    if (Number.isInteger(exports.bpmInput) && Number.isInteger(exports.nominatorInput) && Number.isInteger(exports.denominatorInput)) {
+        // activate metronome
+        exports.metronomeInstanceActive = true;
+        let clockTicks = 0;
+        let tact = {'tactNominator': exports.nominatorInput, 'tactDenominator': exports.denominatorInput};
+        let metronomeTimeout = metronome.setMetronomeTimeout(
+            bpm = exports.bpmInput,
+            tact = tact
+        );
+        while (exports.metronomeInstanceActive === true){
+            // run one metronome Iteration
+            clockTicks = await metronome.runOneMetronomeIteration(
+                metronomeTimeout = metronomeTimeout,
+                tact = tact,
+                clockTicks = clockTicks,
+                soundActive = exports.metronomeInstanceSoundActive,
+                bubbleElementsArray = bubbleElementsArray
+            )
+            // mute Metronome
+            document.getElementById('muteMetronomeButton').addEventListener(
+                'click', 
+                () => {
+                    exports.metronomeInstanceSoundActive = ! exports.metronomeInstanceSoundActive;
+                }
+            );
+
+
+            // stop Metronome on Button Click
+            document.getElementById('stopMetronomeButton').addEventListener(
+                'click', 
+                () => {
+                    exports.metronomeInstanceActive = false;
+                    metronomeIconsContainer.innerHTML = '';
+                }
+            );
+        }
+    }
+    else {
+        alert('The Metronome Input needs to be of the Type: Integer');
+    }
+}
+window.startMetronome = startMetronome;
