@@ -5,6 +5,10 @@ const port = process.env.PORT || 3000;
 exports.hostId = null;
 exports.metronomeInstanceActive = false;
 exports.metronomeInstanceSoundActive = true;
+exports.bpmInput = null;
+exports.nominatorInput = null;
+exports.denominatorInput = null;
+exports.metronomeConstraints = null;
 
 
 // Open WebSocket connection as a Client.
@@ -70,10 +74,16 @@ const sendBroadcastStop = (message = 'Broadcast from Host: Stop', additionalCont
 window.sendBroadcastStop = sendBroadcastStop;
 
 const startMetronome = async() => {
-    const bpmInput = Number(document.getElementById('bpmInput').value);
-    const nominatorInput = Number(document.getElementById('nominatorInput').value);
-    const denominatorInput = Number(document.getElementById('denominatorInput').value);
+    exports.bpmInput = Number(document.getElementById('bpmInput').value);
+    exports.nominatorInput = Number(document.getElementById('nominatorInput').value);
+    exports.denominatorInput = Number(document.getElementById('denominatorInput').value);
+    exports.metronomeConstraints = {
+        'bpm': exports.bpmInput,
+        'nominator': exports.nominatorInput, 
+        'denominator': exports.denominatorInput
+    };
 
+    console.log(`METRONOME CONSTRAINTS: ${Object.entries(exports.metronomeConstraints)}`);
     // visual container
     const metronomeIconsContainer = document.getElementById('metronomeIconsContainer');
     // delete lastly used Elements
@@ -81,7 +91,7 @@ const startMetronome = async() => {
 
     bubbleElementsArray = []
     // create Elements
-    for (let index = 0; index < nominatorInput; index += 1){
+    for (let index = 0; index < exports.nominatorInput; index += 1){
         const newBubbleElement = document.createElement('span');
         newBubbleElement.className = 'dot';
         newBubbleElement.id = `metronomeIcon-${index}`;
@@ -89,12 +99,12 @@ const startMetronome = async() => {
         metronomeIconsContainer.appendChild(newBubbleElement);
     }
 
-    if (Number.isInteger(bpmInput) && Number.isInteger(nominatorInput) && Number.isInteger(denominatorInput)) {
+    if (Number.isInteger(exports.bpmInput) && Number.isInteger(exports.nominatorInput) && Number.isInteger(exports.denominatorInput)) {
         exports.metronomeInstanceActive = true;
         let clockTicks = 0;
-        tact = {'tactNominator': nominatorInput, 'tactDenominator': denominatorInput};
+        tact = {'tactNominator': exports.nominatorInput, 'tactDenominator': exports.denominatorInput};
         let metronomeTimeout = metronome.setMetronomeTimeout(
-            bpm = bpmInput,
+            bpm = exports.bpmInput,
             tact = tact
         );
         while (exports.metronomeInstanceActive === true){
