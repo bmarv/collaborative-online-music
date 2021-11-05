@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Collaborative Online Music</title>
+    </head>
+    <body>
+        <h1>Welcome Client: <span id="clientIDText"></span></h1>
+        <button onclick="sendMessage()">Send Msg</button>
+
+    </body>
+    <script>
+        const port = 3000;
+        let clientID = null;
+
+        // Create WebSocket connection.
+        const socket = new WebSocket(`ws://localhost:${port}`);
+
+        // Connection opened
+        socket.addEventListener('open', function (event) {
+            console.log('Connected to WS Server')
+        });
+
+        // Listen for messages
+        socket.addEventListener('message', function (event) {
+            const serverDataObj = JSON.parse(event.data);
+            console.log('Message from server ', serverDataObj);
+            clientID = serverDataObj.id;
+            document.getElementById("clientIDText").innerHTML = clientID;
+        });
+
+        const sendMessage = (id = clientID) => {
+            const clientMessageObj = {
+                'message': 'Hello Server, Regards Client',
+                'id': id,
+            };
+            socket.send(JSON.stringify(clientMessageObj));
+        }
+    </script>
+</html>
