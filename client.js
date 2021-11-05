@@ -1,10 +1,9 @@
 const buffer = require('buffer');
 const bson = require('bson');
-const serialize = bson.serialize;
 const Buffer = buffer.Buffer
-
+const wsMessage = require('./utils/wsMessage');
 const port = process.env.PORT || 3000;
-let clientID = null;
+let clientId = null;
 
 
 // Open WebSocket connection as a Client.
@@ -18,36 +17,48 @@ socket.addEventListener('open', function (event) {
 // Listen for messages
 socket.addEventListener('message', function (event) {
     const serverDataObj = JSON.parse(event.data);
+    clientId = serverDataObj.receiverId;
+    const messageType = serverDataObj.messageType;
+    const messageContent = serverDataObj.messageContent;
     console.log('Message from server ', serverDataObj);
-    clientID = serverDataObj.id;
-    document.getElementById("clientIDText").innerHTML = clientID;
+    if (messageType === 'Initiation') { 
+        document.getElementById("clientIDText").innerHTML = clientId; 
+        sendMessage(clientId,'Registering','Client Registration');
+    }
+    document.getElementById("serverMessageTextArea").value = `Server-Message: ${messageContent}`;
 });
 
-const sendMessage = (id = clientID) => {
-    const clientMessageObj = {
-        'message': 'Hello Server, Regards Client',
-        'id': id,
-    };
-    socket.send(JSON.stringify(clientMessageObj));
+// send Ping-Message to Server
+const sendMessage = (id = clientId, messageType = 'Message', message = 'Client-Message to the Server', additionalContent = false) => {
+    const packedMessage = wsMessage.packMessage(
+        senderId = id,
+        senderType = 'client', 
+        receiverId = 'server', 
+        messageType = messageType, 
+        messageContent = message,
+        additionalContent = additionalContent
+    );
+    if (messageType === 'Message' || messageType === 'Registering') {
+        messageObject= wsMessage.stringifyMessage(packedMessage);
+    }
+    else if (messageType === 'File') {
+        messageObject = wsMessage.serializeBsonMessage(packedMessage);
+    }
+    socket.send(messageObject);
 }
 window.sendMessage = sendMessage;
 
-const sendFile = (id = clientID) => {
+// send File to Server
+const sendFile = (id = clientId) => {
     const file = document.getElementById('fileInput').files[0];
     const fileName = file.name;
     const reader = new FileReader();
     let rawData = new ArrayBuffer();
+
     reader.onload = (e = file) => {
         rawData = e.target.result;
         const bufferData = Buffer.from(rawData);
-        const bsonData = serialize({
-            id: id,
-            fileName: fileName,
-            file: bufferData,
-            route: 'TRANSFER',
-            action: 'FILE_UPLOAD',
-        });
-        socket.send(bsonData);
+        sendMessage(id = id, messageType = 'File', message= bufferData, additionalContent = fileName)
     };
     reader.readAsArrayBuffer(file);
 }

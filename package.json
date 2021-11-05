@@ -7,20 +7,24 @@
   "scripts": {
     "start": "node index",
     "build-client": "npx browserify client.js -o dist/bundle-client.js",
-    "dev-server": "npx nodemon index.js",
-    "dev": "npm run build-client && npm run dev-server"
+    "build-host": "npx browserify host.js -o dist/bundle-host.js",
+    "build-dist": "npx concurrently 'npm run build-host' 'npm run build-client'",
+    "dev-app": "npx nodemon index.js",
+    "dev": "npm run build-dist && npm run dev-app"
   },
   "keywords": [],
   "author": "Marvin Beese",
   "license": "",
   "dependencies": {
+    "bson": "^4.5.2",
     "express": "^4.17.1",
     "nodemon": "^2.0.12",
+    "pug": "^3.0.2",
     "uuid": "^8.3.2",
-    "ws": "^7.3.0",
-    "bson": "^4.5.2"
+    "ws": "^7.3.0"
   },
   "devDependencies": {
-    "browserify": "^17.0.0"
+    "browserify": "^17.0.0",
+    "concurrently": "^6.3.0"
   }
 }
