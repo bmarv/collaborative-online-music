@@ -37,27 +37,23 @@ socket.addEventListener('message', function (event) {
     }
     else if (messageType === 'Broadcast') {
         if (messageContent === 'Broadcast from Host: Start') {
-            navigator.mediaDevices.getUserMedia(mediaConstraints)
-                .then(startVideoRecording)
-                .catch(errorCallbackVideoStream);
-        }
-        else if (messageContent === 'Broadcast from Host: Stop') {
-            navigator.mediaDevices.getUserMedia(mediaConstraints)
-                .then(stopVideoRecording)
-                .catch(errorCallbackVideoStream);
-        }
-        else if (messageContent === 'Broadcast from Host: Start Metronome') {
             console.log('START METRONOME');
             let additionalContent = serverDataObj.additionalContent;
             exports.bpmInput = additionalContent.bpm;
             exports.nominatorInput = additionalContent.nominator;
             exports.denominatorInput = additionalContent.denominator;
-
+    
             startClientMetronome();
+            navigator.mediaDevices.getUserMedia(mediaConstraints)
+            .then(startVideoRecording)
+            .catch(errorCallbackVideoStream);
         }
-        else if (messageContent === 'Broadcast from Host: Stop Metronome') {
+        else if (messageContent === 'Broadcast from Host: Stop') {
             console.log('STOP METRONOME');
             exports.metronomeInstanceActive = false;
+            navigator.mediaDevices.getUserMedia(mediaConstraints)
+                .then(stopVideoRecording)
+                .catch(errorCallbackVideoStream);
         }
     }
     document.getElementById("serverMessageTextArea").value = `Server-Message: ${messageContent}`;
