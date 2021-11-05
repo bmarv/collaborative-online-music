@@ -37,6 +37,14 @@ socket.addEventListener('message', function (event) {
                 .then(stopVideoRecording)
                 .catch(errorCallbackVideoStream);
         }
+        else if (messageContent === 'Broadcast from Host: Start Metronome') {
+            console.log('START METRONOME');
+            let additionalContent = serverDataObj.additionalContent;
+            console.log(Object.entries(additionalContent));
+        }
+        else if (messageContent === 'Broadcast from Host: Stop Metronome') {
+            console.log('STOP METRONOME');
+        }
     }
     document.getElementById("serverMessageTextArea").value = `Server-Message: ${messageContent}`;
 });

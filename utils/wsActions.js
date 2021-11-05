@@ -36,7 +36,8 @@ exports.communicationService = (webSocketServer, ws) => {
                 console.log(`received Message from ${senderType} <${senderId}>: ${messageContent}`);
             }
             else if (senderType === 'host' && messageType === 'Broadcast') {
-                exports.broadcastToClients(webSocketServer = webSocketServer, message = messageContent, isBinary = false);
+                let additionalContent = unpackedMessage.additionalContent;
+                exports.broadcastToClients(webSocketServer = webSocketServer, message = messageContent, additionalContent = additionalContent, isBinary = false);
             }
         }
         else {
@@ -68,7 +69,7 @@ exports.initializeClient = (ws, receiverId) => {
     exports.sendMessage(ws, stringifiedMessage)
 }
             
-exports.broadcastToClients = (webSocketServer, message, isBinary) => {
+exports.broadcastToClients = (webSocketServer, message, additionalContent, isBinary) => {
     console.log(`Broadcast Message from Host: ${message}`);  
     webSocketServer.clients.forEach( (client) => {
         if (client.readyState == WebSocket.OPEN) {
@@ -80,7 +81,8 @@ exports.broadcastToClients = (webSocketServer, message, isBinary) => {
                             senderType = 'server', 
                             receiverId = client.id, 
                             messageType = 'Broadcast', 
-                            messageContent = message
+                            messageContent = message,
+                            additionalContent= additionalContent
                         )
                     ),
                     {binary: isBinary}

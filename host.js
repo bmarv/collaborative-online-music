@@ -8,7 +8,12 @@ exports.metronomeInstanceSoundActive = true;
 exports.bpmInput = null;
 exports.nominatorInput = null;
 exports.denominatorInput = null;
-exports.metronomeConstraints = null;
+// exports.metronomeConstraints = null;
+exports.metronomeConstraints = {
+    'bpm': 63,
+    'nominator': 2, 
+    'denominator': 4
+};
 
 
 // Open WebSocket connection as a Client.
@@ -67,10 +72,12 @@ const sendBroadcast = (message = 'Broadcast from Host', additionalContent = fals
 }
 window.sendBroadcast = sendBroadcast;
 
-const sendBroadcastStart = (message = 'Broadcast from Host: Start', additionalContent = false) => sendBroadcast(message, additionalContent);
+// const sendBroadcastStart = (message = 'Broadcast from Host: Start', additionalContent = false) => sendBroadcast(message, additionalContent);
+const sendBroadcastStart = (message = 'Broadcast from Host: Start Metronome', additionalContent = exports.metronomeConstraints) => sendBroadcast(message, additionalContent);
 window.sendBroadcastStart = sendBroadcastStart;
 
-const sendBroadcastStop = (message = 'Broadcast from Host: Stop', additionalContent = false) => sendBroadcast(message, additionalContent);
+// const sendBroadcastStop = (message = 'Broadcast from Host: Stop', additionalContent = false) => sendBroadcast(message, additionalContent);
+const sendBroadcastStop = (message = 'Broadcast from Host: Stop Metronome', additionalContent = false) => sendBroadcast(message, additionalContent);
 window.sendBroadcastStop = sendBroadcastStop;
 
 const startMetronome = async() => {
@@ -83,7 +90,6 @@ const startMetronome = async() => {
         'denominator': exports.denominatorInput
     };
 
-    console.log(`METRONOME CONSTRAINTS: ${Object.entries(exports.metronomeConstraints)}`);
     // visual container
     const metronomeIconsContainer = document.getElementById('metronomeIconsContainer');
     // delete lastly used Elements
