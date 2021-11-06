@@ -18,7 +18,7 @@ exports.nominatorInput = null;
 exports.denominatorInput = null;
 
 const setIpAdress = () => {
-    const reqIpSplittedArray = remoteAddress.split(':');
+    const reqIpSplittedArray = localAddress.split(':');
     exports.ipAdress = reqIpSplittedArray[reqIpSplittedArray.length - 1];
     return exports.ipAdress;
 }
