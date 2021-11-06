@@ -16,4 +16,6 @@ br
 video(autoplay='')
 br
 input#fileInput(type='file' onchange='sendFile()')
+script
+  | var remoteAddress="#{remoteAddress}"
 script(src='./../../dist/bundle-client.js' type='text/javascript')

@@ -35,20 +35,20 @@ wsActions.websocketConnectionHandler(wss);
 
 app.set('view engine', 'pug')
 app.get('/', function (req, res) {
-    console.log(`REMOTE ADRESS ${req.socket.remoteAddress}`)
+    console.log(`REMOTE ADRESS ${req.ip}`)
     res.render(path.join(__dirname, 'views', 'pug-source', 'index'), { 
   });
 });
 
 app.get('/host', function (req, res) {
     res.render(path.join(__dirname, 'views', 'pug-source', 'host'), { 
-        wss: wss,
+      remoteAddress: req.ip,
     });
 });
 
 app.get('/client', function (req, res) {
     res.render(path.join(__dirname, 'views', 'pug-source', 'client'), { 
-        wss: wss,
+      remoteAddress: req.ip,
     });
 });
 

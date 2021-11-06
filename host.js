@@ -2,6 +2,8 @@ const wsMessage = require('./utils/wsMessage');
 const metronome = require('./utils/metronome');
 
 const port = process.env.PORT || 3000;
+
+exports.ipAdress = null;
 exports.hostId = null;
 exports.metronomeInstanceActive = false;
 exports.metronomeInstanceSoundActive = true;
@@ -10,8 +12,17 @@ exports.nominatorInput = null;
 exports.denominatorInput = null;
 exports.metronomeConstraints = null;
 
+const setIpAdress = () => {
+    const reqIpSplittedArray = remoteAddress.split(':');
+    exports.ipAdress = reqIpSplittedArray[reqIpSplittedArray.length - 1];
+    return exports.ipAdress;
+}
+
+setIpAdress();
+
 // Open WebSocket connection as a Client.
-const socket = new WebSocket(`ws://localhost:${port}`);
+const socket = new WebSocket(`ws://${exports.ipAdress}:${port}`);
+
 
 // Open Connection
 socket.addEventListener('open', function (event) {
