@@ -1,0 +1,31 @@
+doctype html
+head
+  meta(charset='UTF-8')
+  meta(http-equiv='X-UA-Compatible' content='IE=edge')
+  meta(name='viewport' content='width=device-width, initial-scale=1.0')
+  link(rel='stylesheet' href='../style/client-style.css')
+  title Collaborative Online Music - Host
+h1
+  | Welcome Host: 
+  span#hostIDText
+br
+h2 Metronome
+|         bpm:
+input#bpmInput(type='number' min='0' size='5')
+br
+|         beat: nominator  : 
+input#nominatorInput(type='number' min='0' size='5')
+br
+|         beat: denominator: 
+input#denominatorInput(type='number' min='0' size='5')
+br
+button(onclick='startMetronome()') Start Metronome
+button#stopMetronomeButton Stop Metronome
+button#muteMetronomeButton Mute/Unmute
+br
+#metronomeIconsContainer
+br
+br
+button(onclick='sendBroadcastStart()') Broadcast: Start
+button(onclick='sendBroadcastStop()') Broadcast: Stop
+script(src='./../dist/bundle-host.js' type='text/javascript')

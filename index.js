@@ -35,14 +35,26 @@ wsActions.websocketConnectionHandler(wss);
 
 app.set('view engine', 'pug')
 app.get('/', function (req, res) {
-    res.render('index', { port: port })
-  })
+    console.log(`REMOTE ADRESS ${req.socket.remoteAddress}`)
+    res.render(path.join(__dirname, 'views', 'pug-source', 'index'), { 
+  });
+});
 
-app.get('/client', (req, res) => res.sendFile(path.join(__dirname, 'views', 'html-source', 'client.html')));
-app.get('/host', (req, res) => res.sendFile(path.join(__dirname, 'views', 'html-source', 'host.html')));
+app.get('/host', function (req, res) {
+    res.render(path.join(__dirname, 'views', 'pug-source', 'host'), { 
+        wss: wss,
+    });
+});
+
+app.get('/client', function (req, res) {
+    res.render(path.join(__dirname, 'views', 'pug-source', 'client'), { 
+        wss: wss,
+    });
+});
 
 app.use(express.static(path.join(__dirname)));
 app.use(express.static(path.join(__dirname, 'views')));
+app.use(express.static(path.join(__dirname, 'views', 'pug-source')));
 app.use(express.static(path.join(__dirname, 'views', 'html-source')));
 
 server.listen(port, () => console.log(`Listening on port: ${port}`));

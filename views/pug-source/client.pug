@@ -1,0 +1,19 @@
+doctype html
+head
+  link(rel='stylesheet' href='../style/client-style.css')
+  title Collaborative Online Music - Client
+h1
+  | Welcome Client: 
+  span#clientIDText
+textarea#serverMessageTextArea(rows='1' cols='150')
+br
+h2 Metronome
+button#stopMetronomeButton Stop Metronome
+button#muteMetronomeButton Mute/Unmute
+br
+#metronomeIconsContainer
+br
+video(autoplay='')
+br
+input#fileInput(type='file' onchange='sendFile()')
+script(src='./../../dist/bundle-client.js' type='text/javascript')
