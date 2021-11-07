@@ -12,3 +12,12 @@
 * 0.0.9-pw-security
 * 0.0.10-exposed-hosting
 * (0.0.12-host-video-stream)
+
+## OS x Browser-Compability:
+| OS x Browser  | Firefox     | Chrome| Safari    | Edge  |
+| ---           | ---         | ---   | ---       | ---   |
+| OSX            |  user-media not available | :heavy_check_mark: | :heavy_check_mark: | :heavy_multiplication_x: |
+| Linux   | :heavy_check_mark:    | :heavy_check_mark: |  :heavy_multiplication_x: | :heavy_multiplication_x:|
+| Windows | :heavy_check_mark: | :heavy_check_mark: | :heavy_multiplication_x: | :heavy_check_mark: | 
+| iOS | ws-session not initialized  | ws-session not initialized | ws-session not initialized | :heavy_multiplication_x: |
+| Android   | :heavy_check_mark: | :heavy_check_mark: | :heavy_multiplication_x: | :heavy_multiplication_x: |
