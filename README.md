@@ -16,8 +16,8 @@
 ## OS x Browser-Compability:
 | OS x Browser  | Firefox     | Chrome| Safari    | Edge  |
 | ---           | ---         | ---   | ---       | ---   |
-| OSX            |  user-media not available | :heavy_check_mark: | :heavy_check_mark: | :heavy_multiplication_x: |
-| Linux   | :heavy_check_mark:    | :heavy_check_mark: |  :heavy_multiplication_x: | :heavy_multiplication_x:|
-| Windows | :heavy_check_mark: | :heavy_check_mark: | :heavy_multiplication_x: | :heavy_check_mark: | 
-| iOS | ws-session not initialized  | ws-session not initialized | ws-session not initialized | :heavy_multiplication_x: |
-| Android   | :heavy_check_mark: | :heavy_check_mark: | :heavy_multiplication_x: | :heavy_multiplication_x: |
+| OSX            |  user-media not available | :heavy_check_mark: | :heavy_check_mark: | :radio_button: |
+| Linux   | :heavy_check_mark:    | :heavy_check_mark: |  :radio_button: | :radio_button:|
+| Windows | :heavy_check_mark: | :heavy_check_mark: | :radio_button: | :heavy_check_mark: | 
+| iOS | ws-session not initialized  | ws-session not initialized | ws-session not initialized | :radio_button: |
+| Android   | :heavy_check_mark: | :heavy_check_mark: | :radio_button: | :radio_button: |
