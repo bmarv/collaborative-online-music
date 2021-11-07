@@ -19,14 +19,23 @@
 //           \  \ `-.   \_\_`. _.'_/_/  -' _.' /
 // ===========`-.`___`-.__\ \___  /__.-'_.'_.-'================
 
+const https = require('https');
+const fs = require('fs');
 const express = require('express');
 const path = require('path');
 const WebSocket = require('ws');
 
 const wsActions = require('./utils/wsActions');
 
+
+const sslOptions = {
+  key: fs.readFileSync(path.join(__dirname, 'certs', 'key.pem')),
+  cert: fs.readFileSync(path.join(__dirname, 'certs', 'cert.pem'))
+};
+
 const app = express();
-const server = require('http').createServer(app);
+
+const server = https.createServer(sslOptions, app);
 const port = process.env.PORT || 3000;
 
 const wss = new WebSocket.Server({ server:server });

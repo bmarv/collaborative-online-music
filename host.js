@@ -21,7 +21,7 @@ const setIpAdress = () => {
 setIpAdress();
 
 // Open WebSocket connection as a Client.
-const socket = new WebSocket(`ws://${exports.ipAdress}:${port}`);
+const socket = new WebSocket(`wss://${exports.ipAdress}:${port}`);
 
 
 // Open Connection
