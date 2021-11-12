@@ -1,5 +1,7 @@
-// TODO: getHeightAndWidthOfParticipants()
 /**
+ * @param {number of Participants} size 
+ * @returns Object for Integer height and width
+ * 
  * calculating height and widht for participants the using following heuristics:
  *  ==> use a quadratic alignment whenever possible
  *  ==> if quadratic alignment is visually inefficient:
@@ -12,6 +14,28 @@
  *      else: height = floor(sqrt(n)) + 1, width = floor(sqrt(n)) + 1
  *      
  */
+exports.getHeightAndWidthOfParticipants = (size) => {
+    const sqrtSize = Math.sqrt(size);
+    if (Number.isInteger(sqrtSize)){
+        height = sqrtSize;
+        width = sqrtSize;
+    }
+    else {
+        nFullRectangle = Math.floor(sqrtSize) * (Math.floor(sqrtSize) + 1);
+        if (size <= nFullRectangle){
+            height = Math.floor(sqrtSize);
+            width = Math.floor(sqrtSize) + 1;
+        }
+        else {
+            height = Math.floor(sqrtSize) + 1;
+            width = Math.floor(sqrtSize) + 1;
+        }
+    }
+    return {
+        'height': height,
+        'width': width
+    }
+}
 
 // TODO: equate all input-sources pixel-sizes to the same height and width
 
