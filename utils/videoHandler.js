@@ -1,3 +1,11 @@
+// TODO: equate all input-sources pixel-sizes to the same height and width
+/**
+ * 
+ * COMMAND for one input:
+ * ffmpeg -i b251a64d-a4d3-4b74-b149-fdf6250514e9___11_12_2021,\ 5_56_18\ PM.mp4.webm -filter:v "crop=480:480" output_480_scale.mp4
+ */
+
+
 /**
  * @param {number of Participants} size 
  * @returns Object for Integer height and width
@@ -37,7 +45,6 @@ exports.getHeightAndWidthOfParticipants = (size) => {
     }
 }
 
-// TODO: equate all input-sources pixel-sizes to the same height and width
 
 
 // TODO: build ffmpeg command for merging audio and video
