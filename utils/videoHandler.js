@@ -1,10 +1,37 @@
+const path = require('path');
+const fs = require('fs');
+var ffmpeg = require('fluent-ffmpeg');
+
+
 // TODO: equate all input-sources pixel-sizes to the same height and width
 /**
  * 
  * COMMAND for one input:
  * ffmpeg -i b251a64d-a4d3-4b74-b149-fdf6250514e9___11_12_2021,\ 5_56_18\ PM.mp4.webm -filter:v "crop=480:480" output_480_scale.mp4
  */
+exports.prepareVideosResolution = (inputVideosArray = []) => {
+    // creating a new directory
+    const currentDate = new Date();
+    const cDate = currentDate.getFullYear() + '-' + (currentDate.getMonth() + 1) + '-' + currentDate.getDate();
+    const cTime = currentDate.getHours() + ":" + currentDate.getMinutes() + ":" + currentDate.getSeconds();
+    const dateTime = cDate + '_' + cTime;
+    const directoryName = `video_prep_${dateTime}`;
+    fs.mkdirSync(path.join(process.env.PWD, 'output', directoryName), { recursive: true} );
 
+    //TODO: inputOptions/ output doesnt work yet
+    for (let index = 0; index < inputVideosArray.length; index += 1) {
+        ffmpeg(inputVideosArray[index]).inputOptions([
+            '-filter:v "crop=480:480"'
+        ]).output(
+            String(path.join(
+                process.env.PWD, 
+                "output", 
+                directoryName, 
+                '480p_'+inputVideosArray[index]
+                ))
+        )
+    }
+}
 
 /**
  * @param {number of Participants} size 
