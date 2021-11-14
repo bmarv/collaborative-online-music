@@ -1,36 +1,55 @@
 const path = require('path');
 const fs = require('fs');
-var ffmpeg = require('fluent-ffmpeg');
+const ffmpeg = require('fluent-ffmpeg');
 
 
-// TODO: equate all input-sources pixel-sizes to the same height and width
-/**
- * 
- * COMMAND for one input:
- * ffmpeg -i b251a64d-a4d3-4b74-b149-fdf6250514e9___11_12_2021,\ 5_56_18\ PM.mp4.webm -filter:v "crop=480:480" output_480_scale.mp4
- */
-exports.prepareVideosResolution = (inputVideosArray = []) => {
-    // creating a new directory
+exports.createDirectoryWithTimeStamp = (directoryName) => {
     const currentDate = new Date();
     const cDate = currentDate.getFullYear() + '-' + (currentDate.getMonth() + 1) + '-' + currentDate.getDate();
     const cTime = currentDate.getHours() + ":" + currentDate.getMinutes() + ":" + currentDate.getSeconds();
     const dateTime = cDate + '_' + cTime;
-    const directoryName = `video_prep_${dateTime}`;
-    fs.mkdirSync(path.join(process.env.PWD, 'output', directoryName), { recursive: true} );
+    const directoryNameWTimeStamp = `${directoryName}_${dateTime}`;
+    const directoryPath = path.join(process.env.PWD, 'output', directoryNameWTimeStamp);
+    fs.mkdirSync(directoryPath, { recursive: true} );
+    return directoryPath;
+}
 
-    //TODO: inputOptions/ output doesnt work yet
+/**
+ * equate all input-sources pixel-sizes to the same height and width
+ * by cropping the video-outputs
+ * FFMPEG needs to be installed on the system
+ * 
+ * COMMAND for one input:
+ * ffmpeg 
+ * -i inputFile 
+ * -filter:v crop=480:480 
+ * outputFile
+ * 
+ * @param {String Input of Videos} inputVideosArray 
+ * @returns Array of Output-Videos
+ */
+exports.cropVideosResolution = (inputVideosArray = [], outputResolution = 480) => {
+    // creating a new directory
+    directoryPath = exports.createDirectoryWithTimeStamp('video_prep');
+
+    let videoPrepFileArray = []
     for (let index = 0; index < inputVideosArray.length; index += 1) {
-        ffmpeg(inputVideosArray[index]).inputOptions([
-            '-filter:v "crop=480:480"'
-        ]).output(
-            String(path.join(
-                process.env.PWD, 
-                "output", 
-                directoryName, 
-                '480p_'+inputVideosArray[index]
-                ))
-        )
+        const outputFile = path.join(
+            directoryPath,
+            `${outputResolution}p_${
+                path.basename(inputVideosArray[index])
+            }`
+        );
+        ffmpeg(inputVideosArray[index])
+        .outputOptions([
+            `-filter:v crop=${outputResolution}:${outputResolution}`
+        ])
+        .save(
+            String(outputFile)
+        );
+        videoPrepFileArray.push(outputFile);
     }
+    return videoPrepFileArray;
 }
 
 /**
