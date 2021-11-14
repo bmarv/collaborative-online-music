@@ -92,16 +92,24 @@ exports.getHeightAndWidthOfParticipants = (size) => {
 }
 
 
-
-// TODO: build ffmpeg command for merging audio and video
+// TODO: merge files and save 
 /**
+ * Merging Input Video-Files to one Output-File by following 
+ * the predefined ordering for height and width
+ * 
  * ffmpeg: height and width definition
- *  x-axis := w, y-axis := h
- *  coordinate origin: 0_0
- *  1 * x-axis-step: w0 := 0_0 + 1 * x-axis-step
- *  i * x-axis-step: w0+w1+..+wi
- *  y-axis-steps analog
+ *      x-axis := w, y-axis := h
+ *      coordinate origin: 0_0
+ *      1 * x-axis-step: w0 := 0_0 + 1 * x-axis-step
+ *      i * x-axis-step: w0+w1+..+wi
+ *      y-axis-steps analog
  *  
+ * ordering videos to height and width:
+ *      for widthStep in width.length
+ *          for heightStep in height.length
+ *              if videoElement existent
+ *                  videoOrder: w_widthStep_|h_heightStep_
+ * 
  * 
  * COMMAND f. 5 input sources:
  * ffmpeg 
@@ -111,5 +119,3 @@ exports.getHeightAndWidthOfParticipants = (size) => {
  * -map "[v]" output_xstack_n_5.mp4
  * 
  */
-
-// TODO: merge files and save 
