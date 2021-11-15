@@ -119,8 +119,19 @@ exports.getHeightAndWidthOfParticipants = (size) => {
  * 
  */
 exports.mergeVideoTilesToOneOutput = (inputVideosArray = [], maxHeight, maxWidth) => {
-    const layoutCommand = exports.getVideoLayoutCommand(inputVideosArray, maxHeight, maxWidth)
-    
+    const filterInputCommand = exports.getFilterInputCommand(inputVideosArray.length);
+    const layoutCommand = exports.getVideoLayoutCommand(inputVideosArray, maxHeight, maxWidth);
+    const filterCommand = `-filter_complex ${filterInputCommand}xstack=inputs=${inputVideosArray.length}:layout=${layoutCommand}[v]; amix=inputs=${inputVideosArray.length}:duration=longest:dropout_transition=${inputVideosArray.length}`
+    console.log(filterCommand);
+
+}
+
+exports.getFilterInputCommand = (inputSize) => {
+    let filterInputCommand = '';
+    for (let index = 0; index < inputSize; index += 1) {
+        filterInputCommand += `[${index}:v]`
+    }
+    return filterInputCommand;
 }
 
 
