@@ -95,7 +95,7 @@ exports.getHeightAndWidthOfParticipants = (size) => {
 // TODO: merge files and save 
 /**
  * Merging Input Video-Files to one Output-File by following 
- * the predefined ordering for height and width
+ * the predefined ordering for height and width steps
  * 
  * ffmpeg: height and width definition
  *      x-axis := w, y-axis := h
@@ -110,7 +110,6 @@ exports.getHeightAndWidthOfParticipants = (size) => {
  *              if videoElement existent
  *                  videoOrder: w_widthStep_|h_heightStep_
  * 
- * 
  * COMMAND f. 5 input sources:
  * ffmpeg 
  * -i ef7e78a6-15c3-4784-b958-807f24e0bd00_05_11_2021,\ 15_01_26.mp4 -i f86b630f-8ce3-49de-9d43-51bfd9eae69f_05_11_2021,\ 15_01_26.mp4 -i fcb24433-72c0-4a84-b4f6-223661d12d5b_05_11_2021,\ 15_01_26.mp4 -i 13e40d05-e31c-41d0-ac13-36704914c8d7___05_11_2021,\ 15_47_09.mp4 -i 94afcf4f-fd3a-4a76-b710-120398da0170___05_11_2021,\ 16_56_52.mp4 
@@ -119,3 +118,49 @@ exports.getHeightAndWidthOfParticipants = (size) => {
  * -map "[v]" output_xstack_n_5.mp4
  * 
  */
+exports.mergeVideoTilesToOneOutput = (inputVideosArray = [], maxHeight, maxWidth) => {
+    const layoutCommand = exports.getVideoLayoutCommand(inputVideosArray, maxHeight, maxWidth)
+    
+}
+
+
+exports.getVideoLayoutCommand = (inputVideosArray = [], maxHeight, maxWidth) => {
+    let videoTileIndex = 0;
+    let layoutCommand = '';
+    for (let widthStep = 0; widthStep < maxWidth; widthStep += 1) {
+        for (let heightStep = 0; heightStep < maxHeight; heightStep += 1){
+            if (videoTileIndex < inputVideosArray.length) {
+                console.log(`\nwidthStep: ${widthStep}, heightStep: ${heightStep}`)
+                let widthCommand = '';
+                let heightCommand = '';
+                if (widthStep === 0) { widthCommand = '0'; }
+                if (heightStep === 0) { heightCommand = '0'; }
+                if (widthStep !== 0) {
+                    for (let widthStepCommandIndex = 1; widthStepCommandIndex <= widthStep; widthStepCommandIndex += 1) {
+                        widthCommand += `+w${widthStepCommandIndex - 1}`;
+                    }
+                    widthCommand = widthCommand.substring(1); // remove first '+'-character from command
+                }
+                if (heightStep !== 0) {
+
+                    
+                    for (let heightStepCommandIndex = 1; heightStepCommandIndex <= heightStep; heightStepCommandIndex += 1) {
+                        heightCommand += `+h${heightStepCommandIndex - 1}`;
+                    }
+                    heightCommand = heightCommand.substring(1);
+                }
+                console.log(`
+                    widthCommand: ${widthCommand}
+                    heightCommand: ${heightCommand}
+                `)
+                const tileLayoutCommand = `${widthCommand}_${heightCommand}`;
+                layoutCommand += `|${tileLayoutCommand}`;
+                console.log('tileLayoutCommand ', tileLayoutCommand)
+                videoTileIndex += 1;
+            }
+        }
+    }
+    layoutCommand = layoutCommand.substring(1); //removing the first '|' char
+    console.log(`layoutCommand ${layoutCommand}`);
+    return layoutCommand
+}
