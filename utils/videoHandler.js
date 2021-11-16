@@ -1,3 +1,4 @@
+const execSync = require('child_process').execSync;
 const path = require('path');
 const fs = require('fs');
 const ffmpeg = require('fluent-ffmpeg');
@@ -118,12 +119,19 @@ exports.getHeightAndWidthOfParticipants = (size) => {
  * -map "[v]" output_xstack_n_5.mp4
  * 
  */
-exports.mergeVideoTilesToOneOutput = (inputVideosArray = [], maxHeight, maxWidth) => {
+exports.mergeVideoTilesToOneOutput = (inputVideosArray = [], maxHeight, maxWidth, outputFile) => {
+    let ffmpegInputCommand = 'ffmpeg';
+    for (let inputVideoIndex = 0; inputVideoIndex < inputVideosArray.length; inputVideoIndex += 1) {
+        ffmpegInputCommand += ` -i \"${inputVideosArray[inputVideoIndex]}\"`;
+    }
     const filterInputCommand = exports.getFilterInputCommand(inputVideosArray.length);
     const layoutCommand = exports.getVideoLayoutCommand(inputVideosArray, maxHeight, maxWidth);
-    const filterCommand = `-filter_complex ${filterInputCommand}xstack=inputs=${inputVideosArray.length}:layout=${layoutCommand}[v]; amix=inputs=${inputVideosArray.length}:duration=longest:dropout_transition=${inputVideosArray.length}`
-    console.log(filterCommand);
-
+    const ffmpegFilterCommand = `-filter_complex \"${filterInputCommand}xstack=inputs=${inputVideosArray.length}:layout=${layoutCommand}[v]; amix=inputs=${inputVideosArray.length}:duration=longest:dropout_transition=${inputVideosArray.length}\"`;
+    const ffmpegMapCommand = `-map \"[v]\"`;
+    const ffmpegCommand = `${ffmpegInputCommand} ${ffmpegFilterCommand} ${ffmpegMapCommand} ${outputFile}`;
+    console.log('ffmpegCommand: ', ffmpegCommand);
+    const output = execSync(ffmpegCommand, {encoding: 'utf-8'});
+    return output;
 }
 
 exports.getFilterInputCommand = (inputSize) => {
