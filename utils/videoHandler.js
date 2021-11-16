@@ -3,7 +3,6 @@ const path = require('path');
 const fs = require('fs');
 const ffmpeg = require('fluent-ffmpeg');
 
-
 exports.createDirectoryWithTimeStamp = (directoryName) => {
     const currentDate = new Date();
     const cDate = currentDate.getFullYear() + '-' + (currentDate.getMonth() + 1) + '-' + currentDate.getDate();
@@ -14,6 +13,43 @@ exports.createDirectoryWithTimeStamp = (directoryName) => {
     fs.mkdirSync(directoryPath, { recursive: true} );
     return directoryPath;
 }
+
+exports.mergeVideoFilesToOneOutput = (inputDirectory = 'output', outputResolution = '480') => {
+    const outputContent = fs.readdirSync(
+        path.join(process.env.PWD, inputDirectory), 
+        { withFileTypes: true } 
+    );
+    let rawVideosArray = [];
+    outputContent.forEach( file => {
+        const filePath = path.join(process.env.PWD, inputDirectory, file.name);
+        if (! fs.statSync(filePath).isDirectory() ) {
+            rawVideosArray.push(filePath);
+        }
+    });
+
+    // equating resolution
+    const croppedVideosArray = exports.cropVideosResolution(
+        inputVideosArray = rawVideosArray,
+        outputResolution = outputResolution
+    );
+
+    console.log(`CROPPED VIDEOS ARRAY: ${croppedVideosArray}`)
+
+    // height and width values
+    const heightAndWidthObject = exports.getHeightAndWidthOfParticipants( size= croppedVideosArray.length);
+
+
+    // merging input videos to one output video
+    const outputVideoPath = exports.mergeVideoTilesToOneOutput(
+        inputVideosArray = croppedVideosArray,
+        maxHeight = heightAndWidthObject['height'],
+        maxWidth = heightAndWidthObject['width'],
+        outputFile = 'mergedVideo.mp4'
+    );
+
+    return outputVideoPath;
+}
+
 
 /**
  * equate all input-sources pixel-sizes to the same height and width
@@ -129,8 +165,8 @@ exports.mergeVideoTilesToOneOutput = (inputVideosArray = [], maxHeight, maxWidth
     const ffmpegFilterCommand = `-filter_complex \"${filterInputCommand}xstack=inputs=${inputVideosArray.length}:layout=${layoutCommand}[v]; amix=inputs=${inputVideosArray.length}:duration=longest:dropout_transition=${inputVideosArray.length}\"`;
     const ffmpegMapCommand = `-map \"[v]\"`;
     const ffmpegCommand = `${ffmpegInputCommand} ${ffmpegFilterCommand} ${ffmpegMapCommand} ${outputFile}`;
-    console.log('ffmpegCommand: ', ffmpegCommand);
-    const output = execSync(ffmpegCommand, {encoding: 'utf-8'});
+    console.log('FFMPEG COMMAND: ', ffmpegCommand);
+    const output = execSync(`ffmpegCmd=\'${ffmpegCommand}\'; bash <<< \"$ffmpegCmd\"`, { shell: '/bin/bash' });
     return output;
 }
 
@@ -149,7 +185,6 @@ exports.getVideoLayoutCommand = (inputVideosArray = [], maxHeight, maxWidth) => 
     for (let widthStep = 0; widthStep < maxWidth; widthStep += 1) {
         for (let heightStep = 0; heightStep < maxHeight; heightStep += 1){
             if (videoTileIndex < inputVideosArray.length) {
-                console.log(`\nwidthStep: ${widthStep}, heightStep: ${heightStep}`)
                 let widthCommand = '';
                 let heightCommand = '';
                 if (widthStep === 0) { widthCommand = '0'; }
@@ -168,18 +203,12 @@ exports.getVideoLayoutCommand = (inputVideosArray = [], maxHeight, maxWidth) => 
                     }
                     heightCommand = heightCommand.substring(1);
                 }
-                console.log(`
-                    widthCommand: ${widthCommand}
-                    heightCommand: ${heightCommand}
-                `)
                 const tileLayoutCommand = `${widthCommand}_${heightCommand}`;
                 layoutCommand += `|${tileLayoutCommand}`;
-                console.log('tileLayoutCommand ', tileLayoutCommand)
                 videoTileIndex += 1;
             }
         }
     }
     layoutCommand = layoutCommand.substring(1); //removing the first '|' char
-    console.log(`layoutCommand ${layoutCommand}`);
     return layoutCommand
 }
