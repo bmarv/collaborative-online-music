@@ -1,8 +1,5 @@
-configure-ssl-cert:
-	./scripts/generate-ssl-key-and-start-configuration.sh
-
-sign-ssl-cert:
-	./scripts/sign-ssl-certificate-and-remove-configuration.sh
+configure-and-sign-ssl-cert:
+	./scripts/generate-and-sign-ssl-key.sh
 
 delete-certs:
 	rm -r certs/
