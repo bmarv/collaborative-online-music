@@ -4,17 +4,22 @@ const fs = require('fs');
 const ffmpeg = require('fluent-ffmpeg');
 
 exports.createDirectoryWithTimeStamp = (directoryName) => {
-    const currentDate = new Date();
-    const cDate = currentDate.getFullYear() + '-' + (currentDate.getMonth() + 1) + '-' + currentDate.getDate();
-    const cTime = currentDate.getHours() + "-" + currentDate.getMinutes() + "-" + currentDate.getSeconds();
-    const dateTime = cDate + '_' + cTime;
+    const dateTime = exports.getDateTimeString();
     const directoryNameWTimeStamp = `${directoryName}_${dateTime}`;
     const directoryPath = path.join(process.env.PWD, 'output', directoryNameWTimeStamp);
     fs.mkdirSync(directoryPath, { recursive: true} );
     return directoryPath;
 }
 
-exports.mergeVideoFilesToOneOutput = (inputDirectory = 'output', outputResolution = '480') => {
+exports.getDateTimeString = () => {
+    const currentDate = new Date();
+    const cDate = currentDate.getFullYear() + '-' + (currentDate.getMonth() + 1) + '-' + currentDate.getDate();
+    const cTime = currentDate.getHours() + "-" + currentDate.getMinutes() + "-" + currentDate.getSeconds();
+    const dateTime = cDate + '_' + cTime;
+    return dateTime;
+}
+
+exports.prepareVideoFilesAndCreateMergingCommand = (inputDirectory = 'output', outputResolution = '480') => {
     const outputContent = fs.readdirSync(
         path.join(process.env.PWD, inputDirectory), 
         { withFileTypes: true } 
@@ -38,18 +43,19 @@ exports.mergeVideoFilesToOneOutput = (inputDirectory = 'output', outputResolutio
     // height and width values
     const heightAndWidthObject = exports.getHeightAndWidthOfParticipants( size= croppedVideosArray.length);
 
-
-    // merging input videos to one output video
-    const outputVideoPath = exports.mergeVideoTilesToOneOutput(
+    // command for merging videos
+    const mergeVideoTilesCommand = exports.createMergeVideoTilesCommand(
         inputVideosArray = croppedVideosArray,
         maxHeight = heightAndWidthObject['height'],
         maxWidth = heightAndWidthObject['width'],
-        outputFile = 'mergedVideo.mp4'
+        outputFile = path.join(
+            outputContent,
+            `merged_video__${exports.getDateTimeString}.mp4`
+        )
     );
 
-    return outputVideoPath;
+    return mergeVideoTilesCommand;
 }
-
 
 /**
  * equate all input-sources pixel-sizes to the same height and width
@@ -155,20 +161,7 @@ exports.getHeightAndWidthOfParticipants = (size) => {
  * -map "[v]" output_xstack_n_5.mp4
  * 
  */
-exports.mergeVideoTilesToOneOutput = (inputVideosArray = [], maxHeight, maxWidth, outputFile) => {
-    const outputContent = fs.readdirSync(
-        path.join(process.env.PWD, 'output', 'video_prep_2021-11-16_23-25-15'), 
-        { withFileTypes: true } 
-    );
-    let rawVideosArray = [];
-    outputContent.forEach( file => {
-        const filePath = path.join(process.env.PWD, 'output', file.name);
-        if (! fs.statSync(filePath).isDirectory() ) {
-            rawVideosArray.push(filePath);
-        }
-    });
-    console.log(`rawVideosArray: ${rawVideosArray}`)
-
+exports.createMergeVideoTilesCommand = (inputVideosArray = [], maxHeight, maxWidth, outputFile) => {
     let ffmpegInputCommand = 'ffmpeg';
     for (let inputVideoIndex = 0; inputVideoIndex < inputVideosArray.length; inputVideoIndex += 1) {
         ffmpegInputCommand += ` -i \"${inputVideosArray[inputVideoIndex]}\"`;
@@ -178,6 +171,10 @@ exports.mergeVideoTilesToOneOutput = (inputVideosArray = [], maxHeight, maxWidth
     const ffmpegFilterCommand = `-filter_complex \"${filterInputCommand}xstack=inputs=${inputVideosArray.length}:layout=${layoutCommand}[v]; amix=inputs=${inputVideosArray.length}:duration=longest:dropout_transition=${inputVideosArray.length}\"`;
     const ffmpegMapCommand = `-map \"[v]\"`;
     const ffmpegCommand = `${ffmpegInputCommand} ${ffmpegFilterCommand} ${ffmpegMapCommand} ${outputFile}`;
+    return ffmpegCommand;
+}
+
+exports.executeMergingVideoTilesToOneOutputFile = (ffmpegCommand) => {
     console.log('FFMPEG COMMAND: ', ffmpegCommand);
     const output = execSync(`ffmpegCmd=\'${ffmpegCommand}\'; bash <<< \"$ffmpegCmd\"`, { shell: '/bin/bash' });
     return output;
