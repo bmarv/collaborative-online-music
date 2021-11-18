@@ -11,6 +11,7 @@ exports.bpmInput = null;
 exports.nominatorInput = null;
 exports.denominatorInput = null;
 exports.metronomeConstraints = null;
+exports.mergingVideosCommand = null;
 
 const setIpAdress = () => {
     const reqIpSplittedArray = localAddress.split(':');
@@ -152,3 +153,13 @@ const startMetronome = async() => {
     }
 }
 window.startMetronome = startMetronome;
+
+const prepareMergingVideos = () => {
+    sendMessage(id = exports.hostId, messageType = 'Message', message = 'Prepare Merging', additionalContent = false);
+}
+window.prepareMergingVideos = prepareMergingVideos;
+
+const mergeVideos = () => {
+    sendMessage(id = exports.hostId, messageType = 'Message', message = 'Merge Videos', additionalContent = false);
+}
+window.mergeVideos = mergeVideos;

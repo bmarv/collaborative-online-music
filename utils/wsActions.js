@@ -3,12 +3,15 @@ const WebSocket = require('ws');
 
 const fileHandler = require('./fileHandler');
 const wsMessage = require('./wsMessage');
+const videoHandler = require('./videoHandler');
 
 exports.hostInstanceId = -1;
 exports.clientPoolArray = [];
+exports.mergingVideosCommand = null;
+exports.outputFile = null;
+
 
 exports.websocketConnectionHandler = (webSocketServer) => {
-
 
     webSocketServer.on('connection', function connection(ws, req) {
         ws.id = uuid.v4();
@@ -34,6 +37,22 @@ exports.communicationService = (webSocketServer, ws) => {
             }
             else if (messageType === 'Message'){
                 console.log(`received Message from ${senderType} <${senderId}>: ${messageContent}`);
+                if (senderType === 'host'){
+                    if (messageContent === 'Prepare Merging') {
+                        const prepareCommandDict = videoHandler.prepareVideoFilesAndCreateMergingCommand(
+                            'output',
+                            '480'
+                        );
+                        exports.mergingVideosCommand = prepareCommandDict['command'];
+                        exports.outputFile = prepareCommandDict['output'];
+                    }
+                    else if (messageContent === 'Merge Videos') {
+                        videoHandler.executeMergingVideoTilesToOneOutputFile(
+                            exports.mergingVideosCommand
+                        );
+                        // upload outputFile to Host or Broadcast File to Clients
+                    }
+                }
             }
             else if (senderType === 'host' && messageType === 'Broadcast') {
                 let additionalContent = unpackedMessage.additionalContent;

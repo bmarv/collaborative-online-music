@@ -43,18 +43,23 @@ exports.prepareVideoFilesAndCreateMergingCommand = (inputDirectory = 'output', o
     // height and width values
     const heightAndWidthObject = exports.getHeightAndWidthOfParticipants( size= croppedVideosArray.length);
 
+    outputFile = path.join(
+        outputContent,
+        `merged_video__${exports.getDateTimeString}.mp4`
+    );
+
     // command for merging videos
     const mergeVideoTilesCommand = exports.createMergeVideoTilesCommand(
         inputVideosArray = croppedVideosArray,
         maxHeight = heightAndWidthObject['height'],
         maxWidth = heightAndWidthObject['width'],
-        outputFile = path.join(
-            outputContent,
-            `merged_video__${exports.getDateTimeString}.mp4`
-        )
+        outputFile = outputFile
     );
 
-    return mergeVideoTilesCommand;
+    return {
+        'command': mergeVideoTilesCommand,
+        'output': outputFile
+    };
 }
 
 /**
