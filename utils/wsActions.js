@@ -39,17 +39,21 @@ exports.communicationService = (webSocketServer, ws) => {
                 console.log(`received Message from ${senderType} <${senderId}>: ${messageContent}`);
                 if (senderType === 'host'){
                     if (messageContent === 'Prepare Merging') {
+                        console.log('---PREPARE MERGING: START---')
                         const prepareCommandDict = videoHandler.prepareVideoFilesAndCreateMergingCommand(
                             'output',
                             '480'
                         );
                         exports.mergingVideosCommand = prepareCommandDict['command'];
                         exports.outputFile = prepareCommandDict['output'];
+                        console.log('---PREPARE MERGING: FINISHED---')
                     }
                     else if (messageContent === 'Merge Videos') {
+                        console.log('---MERGING VIDEOS: START---');
                         videoHandler.executeMergingVideoTilesToOneOutputFile(
                             exports.mergingVideosCommand
                         );
+                        console.log('---MERGING VIDEOS: FINISHED---');
                         // upload outputFile to Host or Broadcast File to Clients
                     }
                 }
