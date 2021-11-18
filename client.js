@@ -122,7 +122,11 @@ const stopVideoRecording = (stream) => {
         let blob = exports.recorder.getBlob();
         let url = URL.createObjectURL(blob);
         document.querySelector('video').src = url;
-        RecordRTC.invokeSaveAsDialog(blob, fileName = `${exports.clientId}___${new Date().toLocaleString()}.mp4`);
+        const currentDate = new Date();
+        const cDate = currentDate.getFullYear() + '-' + (currentDate.getMonth() + 1) + '-' + currentDate.getDate();
+        const cTime = currentDate.getHours() + "-" + currentDate.getMinutes() + "-" + currentDate.getSeconds();
+        const dateTime = cDate + '_' + cTime;
+        RecordRTC.invokeSaveAsDialog(blob, fileName = `${exports.clientId}___${dateTime}.mp4`);
     });
 };
 

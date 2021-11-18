@@ -6,7 +6,7 @@ const ffmpeg = require('fluent-ffmpeg');
 exports.createDirectoryWithTimeStamp = (directoryName) => {
     const currentDate = new Date();
     const cDate = currentDate.getFullYear() + '-' + (currentDate.getMonth() + 1) + '-' + currentDate.getDate();
-    const cTime = currentDate.getHours() + ":" + currentDate.getMinutes() + ":" + currentDate.getSeconds();
+    const cTime = currentDate.getHours() + "-" + currentDate.getMinutes() + "-" + currentDate.getSeconds();
     const dateTime = cDate + '_' + cTime;
     const directoryNameWTimeStamp = `${directoryName}_${dateTime}`;
     const directoryPath = path.join(process.env.PWD, 'output', directoryNameWTimeStamp);
@@ -156,6 +156,19 @@ exports.getHeightAndWidthOfParticipants = (size) => {
  * 
  */
 exports.mergeVideoTilesToOneOutput = (inputVideosArray = [], maxHeight, maxWidth, outputFile) => {
+    const outputContent = fs.readdirSync(
+        path.join(process.env.PWD, 'output', 'video_prep_2021-11-16_23-25-15'), 
+        { withFileTypes: true } 
+    );
+    let rawVideosArray = [];
+    outputContent.forEach( file => {
+        const filePath = path.join(process.env.PWD, 'output', file.name);
+        if (! fs.statSync(filePath).isDirectory() ) {
+            rawVideosArray.push(filePath);
+        }
+    });
+    console.log(`rawVideosArray: ${rawVideosArray}`)
+
     let ffmpegInputCommand = 'ffmpeg';
     for (let inputVideoIndex = 0; inputVideoIndex < inputVideosArray.length; inputVideoIndex += 1) {
         ffmpegInputCommand += ` -i \"${inputVideosArray[inputVideoIndex]}\"`;
