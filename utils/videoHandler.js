@@ -43,10 +43,11 @@ exports.prepareVideoFilesAndCreateMergingCommand = (inputDirectory = 'output', o
     // height and width values
     const heightAndWidthObject = exports.getHeightAndWidthOfParticipants( size= croppedVideosArray.length);
 
-    outputFile = path.join(
-        outputContent,
-        `merged_video__${exports.getDateTimeString}.mp4`
-    );
+    outputFile = String(path.join(
+        process.env.PWD,
+        inputDirectory,
+        `merged_video__${exports.getDateTimeString()}.mp4`
+    ));
 
     // command for merging videos
     const mergeVideoTilesCommand = exports.createMergeVideoTilesCommand(
