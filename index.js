@@ -29,7 +29,7 @@ const wsActions = require('./utils/wsActions');
 
 
 const sslOptions = {
-  key: fs.readFileSync(path.join(__dirname, 'certs', 'key.pem')),
+  key: fs.readFileSync(path.join(__dirname, 'certs', 'ssl.key')),
   cert: fs.readFileSync(path.join(__dirname, 'certs', 'cert.pem'))
 };
 
