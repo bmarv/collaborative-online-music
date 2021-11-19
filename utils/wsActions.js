@@ -43,7 +43,6 @@ exports.communicationService = (webSocketServer, ws) => {
                 console.log(`received Message from ${senderType} <${senderId}>: ${messageContent}`);
                 if (senderType === 'host'){
                     if (messageContent === 'Prepare Merging') {
-                        exports.sendOutputVideoToHost(ws = ws, filePath= './output/cpy1-9f6362c9-1521-4641-8c21-9b92d9b174ca___2021-11-18_18-0-2.mp4');
                         console.log('---PREPARE MERGING: START---')
                         const prepareCommandDict = videoHandler.prepareVideoFilesAndCreateMergingCommand(
                             'output',
@@ -57,9 +56,10 @@ exports.communicationService = (webSocketServer, ws) => {
                             console.log('---MERGING VIDEOS: START---');
                             videoHandler.executeMergingVideoTilesToOneOutputFile(
                                 exports.mergingVideosCommand
-                            );
-                            console.log('---MERGING VIDEOS: FINISHED---');
+                                );
+                                console.log('---MERGING VIDEOS: FINISHED---');
                             }
+                            exports.sendOutputVideoToHost(ws = ws, filePath= exports.outputFile);
                         }
             }
             else if (senderType === 'host' && messageType === 'Broadcast') {
