@@ -41,6 +41,18 @@ socket.addEventListener('message', function (event) {
         document.getElementById("hostIDText").innerHTML = exports.hostId; 
         sendMessage(exports.hostId,'Registering','Host Registration');
     }
+    if (messageType === 'File') {
+        senderType = serverDataObj.senderType
+        senderId = serverDataObj.senderId
+        fileName = serverDataObj.additionalContent;
+        console.log(`received File from ${senderType} <${senderId}>: ${fileName}`);
+        var bytes = new Uint8Array(messageContent.data);
+        var blob=new Blob([bytes]);
+        var link=document.createElement('a');
+        link.href=window.URL.createObjectURL(blob);
+        link.download=fileName;
+        link.click();
+    }
 });
 
 // send Ping-Message to Server

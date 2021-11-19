@@ -1,5 +1,9 @@
 const uuid = require('uuid');
+const fs = require('fs');
 const WebSocket = require('ws');
+const buffer = require('buffer');
+const Buffer = buffer.Buffer;
+const path = require('path');
 
 const fileHandler = require('./fileHandler');
 const wsMessage = require('./wsMessage');
@@ -39,24 +43,24 @@ exports.communicationService = (webSocketServer, ws) => {
                 console.log(`received Message from ${senderType} <${senderId}>: ${messageContent}`);
                 if (senderType === 'host'){
                     if (messageContent === 'Prepare Merging') {
+                        exports.sendOutputVideoToHost(ws = ws, filePath= './output/cpy1-9f6362c9-1521-4641-8c21-9b92d9b174ca___2021-11-18_18-0-2.mp4');
                         console.log('---PREPARE MERGING: START---')
                         const prepareCommandDict = videoHandler.prepareVideoFilesAndCreateMergingCommand(
                             'output',
                             '480'
-                        );
-                        exports.mergingVideosCommand = prepareCommandDict['command'];
-                        exports.outputFile = prepareCommandDict['output'];
-                        console.log('---PREPARE MERGING: FINISHED---')
-                    }
-                    else if (messageContent === 'Merge Videos') {
-                        console.log('---MERGING VIDEOS: START---');
-                        videoHandler.executeMergingVideoTilesToOneOutputFile(
-                            exports.mergingVideosCommand
-                        );
-                        console.log('---MERGING VIDEOS: FINISHED---');
-                        // upload outputFile to Host or Broadcast File to Clients
-                    }
-                }
+                            );
+                            exports.mergingVideosCommand = prepareCommandDict['command'];
+                            exports.outputFile = prepareCommandDict['output'];
+                            console.log('---PREPARE MERGING: FINISHED---')
+                        }
+                        else if (messageContent === 'Merge Videos') {
+                            console.log('---MERGING VIDEOS: START---');
+                            videoHandler.executeMergingVideoTilesToOneOutputFile(
+                                exports.mergingVideosCommand
+                            );
+                            console.log('---MERGING VIDEOS: FINISHED---');
+                            }
+                        }
             }
             else if (senderType === 'host' && messageType === 'Broadcast') {
                 let additionalContent = unpackedMessage.additionalContent;
@@ -64,7 +68,7 @@ exports.communicationService = (webSocketServer, ws) => {
             }
         }
         else {
-            const deserializedMessage = wsMessage.deserializeBsonMessage(message)
+            const deserializedMessage = wsMessage.deserializeBsonMessage(message);
             const messageType = deserializedMessage.messageType;
             const senderId = deserializedMessage.senderId;
             const senderType = deserializedMessage.senderType;
@@ -128,4 +132,36 @@ exports.setHostInstanceAndUpdateClientPoolArray = (senderId, senderType) => {
     console.log(`\t updated clients: ${exports.clientPoolArray}`);
 }
 
-exports.sendMessage = (ws, message) => ws.send(message);
+exports.sendMessage = (ws, message, senderId = false, senderType = false, receiverId = false, messageType = false, additionalContent = false) => {
+    if (messageType === 'File') {
+        const packedMessage = wsMessage.packMessage(
+            senderId = senderId,
+            senderType = senderType, 
+            receiverId = senderId, 
+            messageType = messageType, 
+            messageContent = message,
+            additionalContent = additionalContent
+        );
+        stringifiedMessage = wsMessage.stringifyMessage(packedMessage)
+        ws.send(stringifiedMessage);
+    }
+    else {
+        ws.send(message)
+    }
+};
+
+exports.sendOutputVideoToHost = (ws, filePath) => {
+    file = fs.readFileSync(filePath).buffer
+    fileBuffer = Buffer.from(file)
+    const fileName = path.basename(filePath);
+
+    exports.sendMessage(
+        ws= ws,
+        message= fileBuffer, 
+        senderId = 'server',
+        senderType = 'server', 
+        receiverId = exports.hostInstanceId, 
+        messageType = 'File', 
+        additionalContent = fileName
+    );
+}
