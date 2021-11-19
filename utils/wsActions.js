@@ -48,23 +48,23 @@ exports.communicationService = (webSocketServer, ws) => {
                             'output',
                             '480'
                             );
-                            exports.mergingVideosCommand = prepareCommandDict['command'];
-                            exports.outputFile = prepareCommandDict['output'];
-                            console.log('---PREPARE MERGING: FINISHED---')
-                        }
-                        else if (messageContent === 'Merge Videos') {
-                            console.log('---MERGING VIDEOS: START---');
-                            videoHandler.executeMergingVideoTilesToOneOutputFile(
-                                exports.mergingVideosCommand
-                                );
-                                console.log('---MERGING VIDEOS: FINISHED---');
-                            }
-                            exports.sendOutputVideoToHost(ws = ws, filePath= exports.outputFile);
-                        }
-            }
-            else if (senderType === 'host' && messageType === 'Broadcast') {
-                let additionalContent = unpackedMessage.additionalContent;
-                exports.broadcastToClients(webSocketServer = webSocketServer, message = messageContent, additionalContent = additionalContent, isBinary = false);
+                        exports.mergingVideosCommand = prepareCommandDict['command'];
+                        exports.outputFile = prepareCommandDict['output'];
+                        console.log('---PREPARE MERGING: FINISHED---')
+                    }
+                    else if (messageContent === 'Merge Videos') {
+                        console.log('---MERGING VIDEOS: START---');
+                        videoHandler.executeMergingVideoTilesToOneOutputFile(
+                        exports.mergingVideosCommand
+                        );
+                        console.log('---MERGING VIDEOS: FINISHED---');
+                        exports.sendOutputVideoToHost(ws = ws, filePath= exports.outputFile);
+                    }
+                }
+                else if (senderType === 'host' && messageType === 'Broadcast') {
+                    let additionalContent = unpackedMessage.additionalContent;
+                    exports.broadcastToClients(webSocketServer = webSocketServer, message = messageContent, additionalContent = additionalContent, isBinary = false);
+                }
             }
         }
         else {
