@@ -61,10 +61,10 @@ exports.communicationService = (webSocketServer, ws) => {
                         exports.sendOutputVideoToHost(ws = ws, filePath= exports.outputFile);
                     }
                 }
-                else if (senderType === 'host' && messageType === 'Broadcast') {
-                    let additionalContent = unpackedMessage.additionalContent;
-                    exports.broadcastToClients(webSocketServer = webSocketServer, message = messageContent, additionalContent = additionalContent, isBinary = false);
-                }
+            }
+            else if (senderType === 'host' && messageType === 'Broadcast') {
+                let additionalContent = unpackedMessage.additionalContent;
+                exports.broadcastToClients(webSocketServer = webSocketServer, message = messageContent, additionalContent = additionalContent, isBinary = false);
             }
         }
         else {

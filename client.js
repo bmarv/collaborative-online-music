@@ -163,6 +163,10 @@ const startClientMetronome = async() => {
         bpm = exports.bpmInput,
         tact = tact
     );
+    
+    // mute after 2 bars:
+    const muteAfterClockTicksNr = exports.nominatorInput * 2;
+    exports.metronomeInstanceSoundActive = true;
     while (exports.metronomeInstanceActive === true){
         // run one metronome Iteration
         clockTicks = await metronome.runOneMetronomeIteration(
@@ -172,6 +176,8 @@ const startClientMetronome = async() => {
             soundActive = exports.metronomeInstanceSoundActive,
             bubbleElementsArray = bubbleElementsArray
         )
+        // mute after 2 bars:
+        if (clockTicks === muteAfterClockTicksNr) { exports.metronomeInstanceSoundActive = false;}
         // mute Metronome
         document.getElementById('muteMetronomeButton').addEventListener(
             'click', 
