@@ -1,5 +1,5 @@
-const wsMessage = require('./utils/wsMessage');
-const metronome = require('./utils/metronome');
+const wsMessage = require('../utils/wsMessage');
+const metronome = require('../utils/metronome');
 
 const port = process.env.PORT || 3000;
 
