@@ -3,8 +3,8 @@ const bson = require('bson');
 const RecordRTC = require('recordrtc');
 const Buffer = buffer.Buffer
 
-const wsMessage = require('./utils/wsMessage');
-const metronome = require('./utils/metronome');
+const wsMessage = require('../utils/wsMessage');
+const metronome = require('../utils/metronome');
 
 const port = process.env.PORT || 3000;
 
@@ -122,7 +122,11 @@ const stopVideoRecording = (stream) => {
         let blob = exports.recorder.getBlob();
         let url = URL.createObjectURL(blob);
         document.querySelector('video').src = url;
-        RecordRTC.invokeSaveAsDialog(blob, fileName = `${exports.clientId}___${new Date().toLocaleString()}.mp4`);
+        const currentDate = new Date();
+        const cDate = currentDate.getFullYear() + '-' + (currentDate.getMonth() + 1) + '-' + currentDate.getDate();
+        const cTime = currentDate.getHours() + "-" + currentDate.getMinutes() + "-" + currentDate.getSeconds();
+        const dateTime = cDate + '_' + cTime;
+        RecordRTC.invokeSaveAsDialog(blob, fileName = `${exports.clientId}___${dateTime}.mp4`);
     });
 };
 
@@ -159,6 +163,10 @@ const startClientMetronome = async() => {
         bpm = exports.bpmInput,
         tact = tact
     );
+    
+    // mute after 2 bars:
+    const muteAfterClockTicksNr = exports.nominatorInput * 2;
+    exports.metronomeInstanceSoundActive = true;
     while (exports.metronomeInstanceActive === true){
         // run one metronome Iteration
         clockTicks = await metronome.runOneMetronomeIteration(
@@ -168,6 +176,8 @@ const startClientMetronome = async() => {
             soundActive = exports.metronomeInstanceSoundActive,
             bubbleElementsArray = bubbleElementsArray
         )
+        // mute after 2 bars:
+        if (clockTicks === muteAfterClockTicksNr) { exports.metronomeInstanceSoundActive = false;}
         // mute Metronome
         document.getElementById('muteMetronomeButton').addEventListener(
             'click', 

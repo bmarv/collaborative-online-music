@@ -6,8 +6,8 @@
   "type": "commonjs",
   "scripts": {
     "start": "node index",
-    "build-client": "npx browserify client.js -o dist/bundle-client.js",
-    "build-host": "npx browserify host.js -o dist/bundle-host.js",
+    "build-client": "npx browserify clientLogic/client.js -o dist/bundle-client.js",
+    "build-host": "npx browserify clientLogic/host.js -o dist/bundle-host.js",
     "build-dist": "npx concurrently 'npm run build-host' 'npm run build-client'",
     "dev-app": "npx nodemon index.js",
     "dev": "npm run build-dist && npm run dev-app"
@@ -18,6 +18,7 @@
   "dependencies": {
     "bson": "^4.5.2",
     "express": "^4.17.1",
+    "fluent-ffmpeg": "^2.1.2",
     "howler": "^2.2.3",
     "nodemon": "^2.0.12",
     "pug": "^3.0.2",

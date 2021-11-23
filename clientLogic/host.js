@@ -1,5 +1,5 @@
-const wsMessage = require('./utils/wsMessage');
-const metronome = require('./utils/metronome');
+const wsMessage = require('../utils/wsMessage');
+const metronome = require('../utils/metronome');
 
 const port = process.env.PORT || 3000;
 
@@ -11,6 +11,7 @@ exports.bpmInput = null;
 exports.nominatorInput = null;
 exports.denominatorInput = null;
 exports.metronomeConstraints = null;
+exports.mergingVideosCommand = null;
 
 const setIpAdress = () => {
     const reqIpSplittedArray = localAddress.split(':');
@@ -39,6 +40,18 @@ socket.addEventListener('message', function (event) {
     if (messageType === 'Initiation') { 
         document.getElementById("hostIDText").innerHTML = exports.hostId; 
         sendMessage(exports.hostId,'Registering','Host Registration');
+    }
+    if (messageType === 'File') {
+        senderType = serverDataObj.senderType
+        senderId = serverDataObj.senderId
+        fileName = serverDataObj.additionalContent;
+        console.log(`received File from ${senderType} <${senderId}>: ${fileName}`);
+        var bytes = new Uint8Array(messageContent.data);
+        var blob=new Blob([bytes]);
+        var link=document.createElement('a');
+        link.href=window.URL.createObjectURL(blob);
+        link.download=fileName;
+        link.click();
     }
 });
 
@@ -152,3 +165,13 @@ const startMetronome = async() => {
     }
 }
 window.startMetronome = startMetronome;
+
+const prepareMergingVideos = () => {
+    sendMessage(id = exports.hostId, messageType = 'Message', message = 'Prepare Merging', additionalContent = false);
+}
+window.prepareMergingVideos = prepareMergingVideos;
+
+const mergeVideos = () => {
+    sendMessage(id = exports.hostId, messageType = 'Message', message = 'Merge Videos', additionalContent = false);
+}
+window.mergeVideos = mergeVideos;
