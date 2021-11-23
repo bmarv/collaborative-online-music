@@ -12,3 +12,12 @@
 * 0.0.9-pw-security
 * 0.0.10-exposed-hosting
 * (0.0.12-host-video-stream)
+
+## OS x Browser-Compability:
+| OS x Browser  | Firefox     | Chrome| Safari    | Edge  |
+| ---           | ---         | ---   | ---       | ---   |
+| OSX            |  user-media not available | :heavy_check_mark: | :heavy_check_mark: | :radio_button: |
+| Linux   | :heavy_check_mark:    | :heavy_check_mark: |  :radio_button: | :radio_button:|
+| Windows | :heavy_check_mark: | :heavy_check_mark: | :radio_button: | :heavy_check_mark: | 
+| iOS | ws-session not initialized  | ws-session not initialized | ws-session not initialized | :radio_button: |
+| Android   | :heavy_check_mark: | :heavy_check_mark: | :radio_button: | :radio_button: |
