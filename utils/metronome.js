@@ -24,13 +24,13 @@ exports.runOneMetronomeIteration = async (metronomeTimeout, tact = {'tactNominat
 exports.playBeat = (beatType = 'groundBeat') => {
     if (beatType === 'groundBeat') {
         var sound = new Howl({
-            src: ['res/sounds/tick.wav']
+            src: ['res/metronomeSounds/tick.wav']
         });
         sound.play();
     }
     else if (beatType === 'beat') {
         var sound = new Howl({
-            src: ['res/sounds/tock.wav']
+            src: ['res/metronomeSounds/tock.wav']
         });
         sound.play();
     }
