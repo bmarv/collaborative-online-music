@@ -1,5 +1,6 @@
 const wsMessage = require('../utils/wsMessage');
 const metronome = require('../utils/metronome');
+const soundHandler = require('../utils/soundHandler');
 
 const port = process.env.PORT || 3000;
 
@@ -12,6 +13,7 @@ exports.nominatorInput = null;
 exports.denominatorInput = null;
 exports.metronomeConstraints = null;
 exports.mergingVideosCommand = null;
+exports.startSoundsArray = null;
 
 const setIpAdress = () => {
     const reqIpSplittedArray = localAddress.split(':');
@@ -175,3 +177,10 @@ const mergeVideos = () => {
     sendMessage(id = exports.hostId, messageType = 'Message', message = 'Merge Videos', additionalContent = false);
 }
 window.mergeVideos = mergeVideos;
+
+const saveStartSounds = async() => {
+    const startSoundsRawInput = document.getElementById('startSoundsInput').value;
+    exports.startSoundsArray = startSoundsRawInput.split(',');
+    await soundHandler.playToneArrayWithTimeout(exports.startSoundsArray, timeout = 1000);
+}
+window.saveStartSounds = saveStartSounds;

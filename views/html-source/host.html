@@ -11,17 +11,20 @@
         <h1>Welcome Host: <span id="hostIDText"></span></h1>
         <br>
         <h2>Metronome</h2>
-        bpm:<input type="number" id="bpmInput" min="0" size="5"/>
+        bpm:<input type="number" id="bpmInput" min="0" size="5" placeholder="80"/>
         <br>
-        beat: nominator  : <input type="number" id="nominatorInput" min="0" size="5"/>
+        beat: nominator  : <input type="number" id="nominatorInput" min="0" size="5" placeholder="3"/>
         <br>
-        beat: denominator: <input type="number" id="denominatorInput" min="0" size="5"/>
+        beat: denominator: <input type="number" id="denominatorInput" min="0" size="5" placeholder="4"/>
         <br>
         <button onclick="startMetronome()">Start Metronome</button>
         <button id="stopMetronomeButton">Stop Metronome</button>
         <button id="muteMetronomeButton">Mute/Unmute</button>
         <br>
         <div id="metronomeIconsContainer"></div>
+        <br>
+        start sounds: <input id="startSoundsInput" placeholder="d4, f#4, a4, c3"/>
+        <button onclick="saveStartSounds()">Save Start Sounds</button>
         <br>
         <br>
         <button onclick="sendBroadcastStart()">Broadcast: Start</button>
