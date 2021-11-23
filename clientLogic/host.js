@@ -94,10 +94,19 @@ window.sendBroadcast = sendBroadcast;
 
 
 // TODO: UNIFY BROADCAST MESSAGE
-const sendBroadcastStart = (message = 'Broadcast from Host: Start', additionalContent = exports.metronomeConstraints) => sendBroadcast(message, additionalContent);
+const sendBroadcastStart = (
+    message = 'Broadcast from Host: Start', 
+    additionalContent = {
+        'metronomeConstraints': exports.metronomeConstraints,
+        'startSoundArray': exports.startSoundsArray
+    }
+) => sendBroadcast(message, additionalContent);
 window.sendBroadcastStart = sendBroadcastStart;
 
-const sendBroadcastStop = (message = 'Broadcast from Host: Stop', additionalContent = false) => sendBroadcast(message, additionalContent);
+const sendBroadcastStop = (
+    message = 'Broadcast from Host: Stop', 
+    additionalContent = false
+) => sendBroadcast(message, additionalContent);
 window.sendBroadcastStop = sendBroadcastStop;
 
 const startMetronome = async() => {
