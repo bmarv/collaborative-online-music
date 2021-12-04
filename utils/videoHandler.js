@@ -14,6 +14,7 @@ exports.createDirectoryWithTimeStamp = (directoryName) => {
 }
 
 
+// TODO: extend usage for mergingStrategy = clientTimestampNormalization
 exports.prepareVideoFilesAndCreateMergingCommand = (inputDirectory = 'output', outputResolution = '480') => {
     const outputContent = fs.readdirSync(
         path.join(process.env.PWD, inputDirectory), 
@@ -223,3 +224,25 @@ exports.getVideoLayoutCommand = (inputVideosArray = [], maxHeight, maxWidth) => 
     layoutCommand = layoutCommand.substring(1); //removing the first '|' char
     return layoutCommand
 }
+
+
+/** Client Timestamp Normalization
+ * cutting of the beginning of video data from clients using ffmpeg 
+ * to dissolve different video length due to different performance
+ * of different client types
+ *
+ * ====prepareVideoFilesAndCreateMergingCommand(... mergingStrategy = clientTimestampNormalization)===
+ * ==> ...prepare videos with getting videos, cropping the resolution
+ * 
+ *  *   create cutted video directory
+ *  *   for every client video: 
+ *      *   get json-content with timestamp- metainformations with:
+ *          milliseconds = new Date(jsonData['Metronome Start']).valueOf() - new Date(jsonData['Recording Start']).valueOf()
+ *      *   compute timeframe to be cutted off 
+ *          between broadcast start and metronome start (or Counting In Stopped)
+ *      *   cut video using ffmpeg with:
+ *          ffmpeg -ss 00:00:03.014 -i 71.webm cut_71.webm
+ *          // -ss HH:mm:ss.mil <== mil = milliseconds
+ *  
+ * ==> ...merge videos together with client video pool
+ */
