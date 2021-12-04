@@ -74,7 +74,10 @@ exports.communicationService = (webSocketServer, ws) => {
             const senderType = deserializedMessage.senderType;
             if (messageType === 'File') {
                 const messageContent = deserializedMessage.messageContent;
-                const fileName = deserializedMessage.additionalContent;
+                const additionalContent = deserializedMessage.additionalContent;
+                const fileName = additionalContent.fileName;
+                const timeStampDateObject = additionalContent.timeStampDateObject;
+                console.log('timeStampDateObject: ', timeStampDateObject)
                 console.log(`received File from ${senderType} <${senderId}>: ${fileName}`);
                 fileHandler.saveBinaryFileInServerDirectory(fileName, messageContent, 'output');
             }

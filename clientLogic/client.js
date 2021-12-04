@@ -107,7 +107,15 @@ const sendFile = (id = exports.clientId) => {
     reader.onload = (e = file) => {
         rawData = e.target.result;
         const bufferData = Buffer.from(rawData);
-        sendMessage(id = id, messageType = 'File', message= bufferData, additionalContent = fileName)
+        sendMessage(
+            id = id, 
+            messageType = 'File', 
+            message= bufferData, 
+            additionalContent = {
+                'fileName': fileName,
+                'timeStampDateObject': exports.timeStampDateObject,
+            }
+        );
     };
     reader.readAsArrayBuffer(file);
 }
