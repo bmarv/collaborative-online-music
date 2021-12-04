@@ -3,21 +3,16 @@ const path = require('path');
 const fs = require('fs');
 const ffmpeg = require('fluent-ffmpeg');
 
+const helper = require('./helper');
+
 exports.createDirectoryWithTimeStamp = (directoryName) => {
-    const dateTime = exports.getDateTimeString();
+    const dateTime = helper.getDateTimeString();
     const directoryNameWTimeStamp = `${directoryName}_${dateTime}`;
     const directoryPath = path.join(process.env.PWD, 'output', directoryNameWTimeStamp);
     fs.mkdirSync(directoryPath, { recursive: true} );
     return directoryPath;
 }
 
-exports.getDateTimeString = () => {
-    const currentDate = new Date();
-    const cDate = currentDate.getFullYear() + '-' + (currentDate.getMonth() + 1) + '-' + currentDate.getDate();
-    const cTime = currentDate.getHours() + "-" + currentDate.getMinutes() + "-" + currentDate.getSeconds();
-    const dateTime = cDate + '_' + cTime;
-    return dateTime;
-}
 
 exports.prepareVideoFilesAndCreateMergingCommand = (inputDirectory = 'output', outputResolution = '480') => {
     const outputContent = fs.readdirSync(
@@ -46,7 +41,7 @@ exports.prepareVideoFilesAndCreateMergingCommand = (inputDirectory = 'output', o
     outputFile = String(path.join(
         process.env.PWD,
         inputDirectory,
-        `merged_video__${exports.getDateTimeString()}.mp4`
+        `merged_video__${helper.getDateTimeString()}.mp4`
     ));
 
     // command for merging videos

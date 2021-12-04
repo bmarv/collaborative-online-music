@@ -8,6 +8,7 @@ const path = require('path');
 const fileHandler = require('./fileHandler');
 const wsMessage = require('./wsMessage');
 const videoHandler = require('./videoHandler');
+const helper = require('./helper');
 
 exports.hostInstanceId = -1;
 exports.clientPoolArray = [];
@@ -77,9 +78,9 @@ exports.communicationService = (webSocketServer, ws) => {
                 const additionalContent = deserializedMessage.additionalContent;
                 const fileName = additionalContent.fileName;
                 const timeStampDateObject = additionalContent.timeStampDateObject;
-                console.log('timeStampDateObject: ', timeStampDateObject)
                 console.log(`received File from ${senderType} <${senderId}>: ${fileName}`);
                 fileHandler.saveBinaryFileInServerDirectory(fileName, messageContent, 'output');
+                fileHandler.saveObjectAsJsonFileInServerDirectory(`${senderId}__${helper.getDateTimeString()}`, timeStampDateObject, 'output');
             }
             else console.log('ERR: unsupported Message');
         }
