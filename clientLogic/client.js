@@ -18,6 +18,7 @@ exports.bpmInput = null;
 exports.nominatorInput = null;
 exports.denominatorInput = null;
 exports.startSoundArray = null;
+exports.timeStampObject = null;
 
 const setIpAdress = () => {
     const reqIpSplittedArray = localAddress.split(':');
@@ -49,6 +50,7 @@ socket.addEventListener('message', function (event) {
     }
     else if (messageType === 'Broadcast') {
         if (messageContent === 'Broadcast from Host: Start') {
+            console.log(`Broadcast Start: ${new Date()}`)
             console.log('START METRONOME');
             let additionalContent = serverDataObj.additionalContent;
             exports.bpmInput = additionalContent.metronomeConstraints.bpm;
@@ -61,10 +63,14 @@ socket.addEventListener('message', function (event) {
             navigator.mediaDevices.getUserMedia(mediaConstraints)
             .then(startVideoRecording)
             .catch(errorCallbackVideoStream);
+            console.log(`Recording Start: ${new Date()}`)
+
         }
         else if (messageContent === 'Broadcast from Host: Stop') {
+            console.log(`Broadcast Stop: ${new Date()}`)
             console.log('STOP METRONOME');
             exports.metronomeInstanceActive = false;
+            console.log(`Recording Stop: ${new Date()}`)
             navigator.mediaDevices.getUserMedia(mediaConstraints)
                 .then(stopVideoRecording)
                 .catch(errorCallbackVideoStream);
@@ -172,6 +178,7 @@ const playToneArrayAndStartClientMetronome = async() => {
     // mute after 2 bars:
     const muteAfterClockTicksNr = exports.nominatorInput * 2;
     exports.metronomeInstanceSoundActive = true;
+    console.log(`Metronome Start: ${new Date()}`)
     while (exports.metronomeInstanceActive === true){
         // run one metronome Iteration
         clockTicks = await metronome.runOneMetronomeIteration(
@@ -182,7 +189,10 @@ const playToneArrayAndStartClientMetronome = async() => {
             bubbleElementsArray = bubbleElementsArray
         )
         // mute after 2 bars:
-        if (clockTicks === muteAfterClockTicksNr) { exports.metronomeInstanceSoundActive = false;}
+        if (clockTicks === muteAfterClockTicksNr) { 
+            exports.metronomeInstanceSoundActive = false;
+            console.log(`Counting In Stopped: ${new Date()}`)
+        }
         // mute Metronome
         document.getElementById('muteMetronomeButton').addEventListener(
             'click', 
