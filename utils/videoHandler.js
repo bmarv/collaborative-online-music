@@ -4,6 +4,7 @@ const fs = require('fs');
 const ffmpeg = require('fluent-ffmpeg');
 
 const helper = require('./helper');
+const fileHandler = require('./fileHandler');
 
 exports.createDirectoryWithTimeStamp = (directoryName, baseDirectory = 'output') => {
     const dateTime = helper.getDateTimeString();
@@ -191,7 +192,7 @@ exports.createMergeVideoTilesCommand = (inputVideosArray = [], maxHeight, maxWid
     return ffmpegCommand;
 }
 
-exports.executeMergingVideoTilesToOneOutputFile = (ffmpegCommand) => {
+exports.executeSyncFFMPEGCommand = (ffmpegCommand) => {
     console.log('FFMPEG COMMAND: ', ffmpegCommand);
     const output = execSync(`ffmpegCmd=\'${ffmpegCommand}\'; bash <<< \"$ffmpegCmd\"`, { shell: '/bin/bash' });
     return output;
@@ -252,9 +253,9 @@ exports.getVideoLayoutCommand = (inputVideosArray = [], maxHeight, maxWidth) => 
  *  *   create cutted video directory
  *  *   for every client video: 
  *      *   get json-content with timestamp- metainformations with:
- *          milliseconds = new Date(jsonData['Metronome Start']).valueOf() - new Date(jsonData['Recording Start']).valueOf()
  *      *   compute timeframe to be cutted off 
  *          between broadcast start and metronome start (or Counting In Stopped)
+ *          milliseconds = new Date(jsonData['Metronome Start']).valueOf() - new Date(jsonData['Recording Start']).valueOf()
  *      *   cut video using ffmpeg with:
  *          ffmpeg -ss 00:00:03.014 -i 71.webm cut_71.webm
  *          // -ss HH:mm:ss.mil <== mil = milliseconds
@@ -262,6 +263,7 @@ exports.getVideoLayoutCommand = (inputVideosArray = [], maxHeight, maxWidth) => 
  * ==> ...merge videos together with client video pool
  */
 exports.cutVideosByTimestamp = (inputDirectory, inputVideosArray, timestampArgument = 'Metronome Start') => {
+    var cuttedVideosArray = [];
     // json Files with Timestamp
     let jsonTimestampArray = [];
     const outputContent = fs.readdirSync(
@@ -289,14 +291,77 @@ exports.cutVideosByTimestamp = (inputDirectory, inputVideosArray, timestampArgum
     relevantJsonFileArray = [];
     for (var jsonFile of jsonTimestampArray) {
         const jsonFileUUID = (path.basename(jsonFile)).split('_')[0];
-        console.log('jsonFileUUID: ', jsonFileUUID)
         for (var sourceFile of inputVideosArray) {
             const sourceFileUUID = (path.basename(sourceFile)).split('_')[1];
-            console.log('sourceFileUUID: ', sourceFileUUID)
             if (jsonFileUUID === sourceFileUUID) {
                 relevantJsonFileArray.push(jsonFile);
                 relevantSourceFileArray.push(sourceFile);
             }
         }
     }
+
+    // calculate cuttable offset
+    // for (var jsonDataFile of relevantJsonFileArray) {
+    for (var index = 0; index < relevantJsonFileArray.length; index += 1){
+        const jsonDataFile = relevantJsonFileArray[index];
+        const sourceFile = relevantSourceFileArray[index];
+        const jsonData = fileHandler.readJsonDataFromFile(jsonDataFile);
+        const cuttableOffset = new Date(jsonData[String(timestampArgument)]).valueOf() - new Date(jsonData['Recording Start']).valueOf();
+        const cuttableOffsetString = exports.createCuttableOffsetString(cuttableOffset);
+
+        // ffmpeg
+        const outputFilePath = path.join(
+            cuttedVideoDirectory,
+            `cut_${path.basename(sourceFile)}`
+        );
+        const ffmpegCutCommand = `ffmpeg -ss ${cuttableOffsetString} -i ${sourceFile} ${outputFilePath}`;
+        exports.executeSyncFFMPEGCommand(ffmpegCutCommand);
+        cuttedVideosArray.push(outputFilePath);
+    }
+    return cuttedVideosArray;
+}
+
+exports.createCuttableOffsetString = (cuttableOffset) => {
+    const seconds = cuttableOffset / 1000;
+        var offsetString = "00:" // hours
+        // minutes present
+        if (seconds > 60) {
+            const minutesFloored = Math.floor(seconds / 60);
+            const restSeconds = (seconds / 60) % 60;
+            if (minutesFloored < 10) {
+                offsetString += `0${minutesFloored}:`;  //min
+            } else {
+                offsetString += `${minutesFloored}:`;   //min
+            }
+            if (restSeconds < 10) {
+                offsetString += `0${String(restSeconds).split('.')[0]}.`; //sec
+            } else {
+                offsetString += `${String(restSeconds).split('.')[0]}.`; //sec
+            }
+            // milliseconds present
+            if ( (String(restSeconds).split('.')).length > 1 ) {
+                const formedMilliseconds = String(restSeconds).split('.')[1].substring(0,3);
+                offsetString += `${formedMilliseconds}`;    //ms
+            } else {
+                // no milliseconds present
+                offsetString += `000`;    //ms
+            }
+        } else {
+            // no minutes present
+            offsetString += `00:`;  // min
+            if (seconds < 10) {
+                offsetString += `0${String(seconds).split('.')[0]}.`; //sec
+            } else {
+                offsetString += `${String(seconds).split('.')[0]}.`; //sec
+            }
+            // milliseconds present
+            if ( (String(seconds).split('.')).length > 1) {
+                const formedMilliseconds = String(seconds).split('.')[1].substring(0,3);
+                offsetString += `${formedMilliseconds}`;    //ms
+            } else {
+                // no milliseconds present
+                offsetString += `000`;    //ms
+            }
+        }
+        return offsetString;
 }

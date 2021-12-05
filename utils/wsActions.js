@@ -55,7 +55,7 @@ exports.communicationService = (webSocketServer, ws) => {
                     }
                     else if (messageContent === 'Merge Videos') {
                         console.log('---MERGING VIDEOS: START---');
-                        videoHandler.executeMergingVideoTilesToOneOutputFile(
+                        videoHandler.executeSyncFFMPEGCommand(
                         exports.mergingVideosCommand
                         );
                         console.log('---MERGING VIDEOS: FINISHED---');
