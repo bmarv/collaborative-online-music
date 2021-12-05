@@ -5,17 +5,16 @@ const ffmpeg = require('fluent-ffmpeg');
 
 const helper = require('./helper');
 
-exports.createDirectoryWithTimeStamp = (directoryName) => {
+exports.createDirectoryWithTimeStamp = (directoryName, baseDirectory = 'output') => {
     const dateTime = helper.getDateTimeString();
     const directoryNameWTimeStamp = `${directoryName}_${dateTime}`;
-    const directoryPath = path.join(process.env.PWD, 'output', directoryNameWTimeStamp);
+    const directoryPath = path.join(process.env.PWD, baseDirectory, directoryNameWTimeStamp);
     fs.mkdirSync(directoryPath, { recursive: true} );
     return directoryPath;
 }
 
 
-// TODO: extend usage for mergingStrategy = clientTimestampNormalization
-exports.prepareVideoFilesAndCreateMergingCommand = (inputDirectory = 'output', outputResolution = '480') => {
+exports.prepareVideoFilesAndCreateMergingCommand = (inputDirectory = 'output', outputResolution = '480', mergingStrategy = 'default') => {
     const outputContent = fs.readdirSync(
         path.join(process.env.PWD, inputDirectory), 
         { withFileTypes: true } 
@@ -23,7 +22,7 @@ exports.prepareVideoFilesAndCreateMergingCommand = (inputDirectory = 'output', o
     let rawVideosArray = [];
     outputContent.forEach( file => {
         const filePath = path.join(process.env.PWD, inputDirectory, file.name);
-        if (! fs.statSync(filePath).isDirectory() ) {
+        if ((! fs.statSync(filePath).isDirectory()) && (path.extname(filePath) === ('.mp4' || '.webm'))) {
             rawVideosArray.push(filePath);
         }
     });
@@ -38,16 +37,32 @@ exports.prepareVideoFilesAndCreateMergingCommand = (inputDirectory = 'output', o
 
     // height and width values
     const heightAndWidthObject = exports.getHeightAndWidthOfParticipants( size= croppedVideosArray.length);
+    
+    let modifiedVideosArray = croppedVideosArray;
 
+    /**
+     * merging strategy:
+     *  * default: client videos will be merged without changing the sources
+     *  * timestamp: //cut videos
+     *      -Broadcast Start
+     *      -Recording Start
+     *      -Metronome Start
+     *      -Counting In Stopped
+     *      -Recording Stop
+     *      -Broadcast Stop
+    */
+    
+
+
+    // command for merging videos
     outputFile = String(path.join(
         process.env.PWD,
         inputDirectory,
         `merged_video__${helper.getDateTimeString()}.mp4`
     ));
 
-    // command for merging videos
     const mergeVideoTilesCommand = exports.createMergeVideoTilesCommand(
-        inputVideosArray = croppedVideosArray,
+        inputVideosArray = modifiedVideosArray,
         maxHeight = heightAndWidthObject['height'],
         maxWidth = heightAndWidthObject['width'],
         outputFile = outputFile
@@ -246,3 +261,42 @@ exports.getVideoLayoutCommand = (inputVideosArray = [], maxHeight, maxWidth) => 
  *  
  * ==> ...merge videos together with client video pool
  */
+exports.cutVideosByTimestamp = (inputDirectory, inputVideosArray, timestampArgument = 'Metronome Start') => {
+    // json Files with Timestamp
+    let jsonTimestampArray = [];
+    const outputContent = fs.readdirSync(
+        path.join(process.env.PWD, inputDirectory), 
+        { withFileTypes: true } 
+    );
+    outputContent.forEach( file => {
+        const filePath = path.join(process.env.PWD, inputDirectory, file.name);
+        if ((! fs.statSync(filePath).isDirectory()) && (path.extname(filePath) === ('.json'))) {
+            jsonTimestampArray.push(filePath);
+        }
+    });
+
+
+    // parent directory path of cropped videos
+    preparationDirectory = path.dirname(inputVideosArray[0]);
+
+    cuttedVideoDirectory = exports.createDirectoryWithTimeStamp(
+        directoryName = `video_cutted`,
+        baseDirectory = preparationDirectory
+    );
+
+    // get relevant source videos by matching json-file
+    relevantSourceFileArray = [];
+    relevantJsonFileArray = [];
+    for (var jsonFile of jsonTimestampArray) {
+        const jsonFileUUID = (path.basename(jsonFile)).split('_')[0];
+        console.log('jsonFileUUID: ', jsonFileUUID)
+        for (var sourceFile of inputVideosArray) {
+            const sourceFileUUID = (path.basename(sourceFile)).split('_')[1];
+            console.log('sourceFileUUID: ', sourceFileUUID)
+            if (jsonFileUUID === sourceFileUUID) {
+                relevantJsonFileArray.push(jsonFile);
+                relevantSourceFileArray.push(sourceFile);
+            }
+        }
+    }
+}
