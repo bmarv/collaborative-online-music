@@ -15,7 +15,7 @@ exports.createDirectoryWithTimeStamp = (directoryName, baseDirectory = 'output')
 }
 
 
-exports.prepareVideoFilesAndCreateMergingCommand = (inputDirectory = 'output', outputResolution = '480', mergingStrategy = 'default') => {
+exports.prepareVideoFilesAndCreateMergingCommand = (inputDirectory = 'output', outputResolution = '480') => {
     const outputContent = fs.readdirSync(
         path.join(process.env.PWD, inputDirectory), 
         { withFileTypes: true } 
@@ -39,22 +39,6 @@ exports.prepareVideoFilesAndCreateMergingCommand = (inputDirectory = 'output', o
     // height and width values
     const heightAndWidthObject = exports.getHeightAndWidthOfParticipants( size= croppedVideosArray.length);
     
-    let modifiedVideosArray = croppedVideosArray;
-
-    /**
-     * merging strategy:
-     *  * default: client videos will be merged without changing the sources
-     *  * timestamp: //cut videos
-     *      -Broadcast Start
-     *      -Recording Start
-     *      -Metronome Start
-     *      -Counting In Stopped
-     *      -Recording Stop
-     *      -Broadcast Stop
-    */
-    
-
-
     // command for merging videos
     outputFile = String(path.join(
         process.env.PWD,
@@ -63,7 +47,7 @@ exports.prepareVideoFilesAndCreateMergingCommand = (inputDirectory = 'output', o
     ));
 
     const mergeVideoTilesCommand = exports.createMergeVideoTilesCommand(
-        inputVideosArray = modifiedVideosArray,
+        inputVideosArray = croppedVideosArray,
         maxHeight = heightAndWidthObject['height'],
         maxWidth = heightAndWidthObject['width'],
         outputFile = outputFile
@@ -71,6 +55,9 @@ exports.prepareVideoFilesAndCreateMergingCommand = (inputDirectory = 'output', o
 
     return {
         'command': mergeVideoTilesCommand,
+        'inputVideosArray': inputVideosArray,
+        'maxHeight': maxHeight,
+        'maxWidth': maxWidth,
         'output': outputFile
     };
 }
@@ -263,6 +250,8 @@ exports.getVideoLayoutCommand = (inputVideosArray = [], maxHeight, maxWidth) => 
  * ==> ...merge videos together with client video pool
  */
 exports.cutVideosByTimestamp = (inputDirectory, inputVideosArray, timestampArgument = 'Metronome Start') => {
+    console.log(`---CUTTING OFFSET BY MERGING-STRATEGY <${timestampArgument}>: STARTED---`);
+
     var cuttedVideosArray = [];
     // json Files with Timestamp
     let jsonTimestampArray = [];
@@ -281,7 +270,7 @@ exports.cutVideosByTimestamp = (inputDirectory, inputVideosArray, timestampArgum
     // parent directory path of cropped videos
     preparationDirectory = path.dirname(inputVideosArray[0]);
 
-    cuttedVideoDirectory = exports.createDirectoryWithTimeStamp(
+    const cuttedVideoDirectory = exports.createDirectoryWithTimeStamp(
         directoryName = `video_cutted`,
         baseDirectory = preparationDirectory
     );
@@ -318,6 +307,7 @@ exports.cutVideosByTimestamp = (inputDirectory, inputVideosArray, timestampArgum
         exports.executeSyncFFMPEGCommand(ffmpegCutCommand);
         cuttedVideosArray.push(outputFilePath);
     }
+    console.log(`---CUTTING OFFSET BY MERGING-STRATEGY <${timestampArgument}>: FINISHED---`)
     return cuttedVideosArray;
 }
 

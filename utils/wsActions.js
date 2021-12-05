@@ -44,7 +44,7 @@ exports.communicationService = (webSocketServer, ws) => {
                 console.log(`received Message from ${senderType} <${senderId}>: ${messageContent}`);
                 if (senderType === 'host'){
                     if (messageContent === 'Prepare Merging') {
-                        console.log('---PREPARE MERGING: START---')
+                        console.log('---PREPARE MERGING: STARTED---')
                         const prepareCommandDict = videoHandler.prepareVideoFilesAndCreateMergingCommand(
                             'output',
                             '480'
@@ -54,9 +54,9 @@ exports.communicationService = (webSocketServer, ws) => {
                         console.log('---PREPARE MERGING: FINISHED---')
                     }
                     else if (messageContent === 'Merge Videos') {
-                        console.log('---MERGING VIDEOS: START---');
+                        console.log('---MERGING VIDEOS: STARTED---');
                         videoHandler.executeSyncFFMPEGCommand(
-                        exports.mergingVideosCommand
+                            exports.mergingVideosCommand
                         );
                         console.log('---MERGING VIDEOS: FINISHED---');
                         exports.sendOutputVideoToHost(ws = ws, filePath= exports.outputFile);
