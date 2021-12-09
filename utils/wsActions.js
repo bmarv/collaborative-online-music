@@ -45,7 +45,7 @@ exports.communicationService = (webSocketServer, ws) => {
                 if (senderType === 'host'){
                     if (messageContent === 'Prepare Merging') {
                         console.log('---PREPARE MERGING: STARTED---')
-                        const prepareCommandDict = videoHandler.prepareVideoFilesAndCreateMergingCommand(
+                        const prepareCommandDict = videoHandler.prepareVideoFilesAndCreateMergingCommandSync(
                             'output',
                             '480'
                             );

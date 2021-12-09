@@ -15,7 +15,7 @@ exports.createDirectoryWithTimeStamp = (directoryName, baseDirectory = 'output')
 }
 
 
-exports.prepareVideoFilesAndCreateMergingCommand = (inputDirectory = 'output', outputResolution = '480') => {
+exports.prepareVideoFilesAndCreateMergingCommandSync = (inputDirectory = 'output', outputResolution = '480') => {
     const outputContent = fs.readdirSync(
         path.join(process.env.PWD, inputDirectory), 
         { withFileTypes: true } 
@@ -228,6 +228,24 @@ exports.getVideoLayoutCommand = (inputVideosArray = [], maxHeight, maxWidth) => 
     return layoutCommand
 }
 
+exports.cutVideosByTimestampAndRebuildFFMPEGCommandSync = (
+    inputDirectory,
+    inputVideosArray,
+    timeStampArgument,
+    maxHeight,
+    maxWidth,
+    outputFile,
+) => {
+    const cuttedVideosArray = exports.cutVideosByTimestampSync(inputDirectory, inputVideosArray, timeStampArgument);
+    const ffmpegCommandRebuild = exports.createMergeVideoTilesCommand(
+        inputVideosArray = cuttedVideosArray,
+        maxHeight = maxHeight,
+        maxWidth = maxWidth,
+        outputFile = outputFile
+    );
+    return ffmpegCommandRebuild;
+}
+
 
 /** Client Timestamp Normalization
  * cutting of the beginning of video data from clients using ffmpeg 
@@ -249,7 +267,7 @@ exports.getVideoLayoutCommand = (inputVideosArray = [], maxHeight, maxWidth) => 
  *  
  * ==> ...merge videos together with client video pool
  */
-exports.cutVideosByTimestamp = (inputDirectory, inputVideosArray, timestampArgument = 'Metronome Start') => {
+exports.cutVideosByTimestampSync = (inputDirectory, inputVideosArray, timestampArgument = 'Metronome Start') => {
     console.log(`---CUTTING OFFSET BY MERGING-STRATEGY <${timestampArgument}>: STARTED---`);
 
     var cuttedVideosArray = [];
