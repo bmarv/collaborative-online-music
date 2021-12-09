@@ -12,6 +12,7 @@ const helper = require('./helper');
 
 exports.hostInstanceId = -1;
 exports.clientPoolArray = [];
+exports.prepareCommandDict = {};
 exports.mergingVideosCommand = null;
 exports.outputFile = null;
 
@@ -43,16 +44,60 @@ exports.communicationService = (webSocketServer, ws) => {
             else if (messageType === 'Message'){
                 console.log(`received Message from ${senderType} <${senderId}>: ${messageContent}`);
                 if (senderType === 'host'){
+                    /**
+                     * Preparing Client Videos
+                     */
                     if (messageContent === 'Prepare Merging') {
                         console.log('---PREPARE MERGING: STARTED---')
                         const prepareCommandDict = videoHandler.prepareVideoFilesAndCreateMergingCommandSync(
                             'output',
                             '480'
-                            );
+                        );
+                        exports.prepareCommandDict = prepareCommandDict;
                         exports.mergingVideosCommand = prepareCommandDict['command'];
                         exports.outputFile = prepareCommandDict['output'];
                         console.log('---PREPARE MERGING: FINISHED---')
+                    } 
+                    /**
+                     * Applying Merging Strategy
+                     */
+                    else if (messageContent === 'Apply Merging Strategy: Recording Start') {
+                        console.log('---APPLY MERGING STRATEGY <RECORDING START>: STARTED---');
+                        exports.mergingVideosCommand = videoHandler.cutVideosByTimestampAndRebuildFFMPEGCommandSync(
+                            inputDirectory = 'output',
+                            inputVideosArray = exports.prepareCommandDict['inputVideosArray'],
+                            timeStampArgument = 'Recording Start',
+                            maxHeight = exports.prepareCommandDict['maxHeight'],
+                            maxWidth = exports.prepareCommandDict['maxWidth'],
+                            outputFile = exports.prepareCommandDict['output']
+                        );
+                        console.log('---APPLY MERGING STRATEGY <RECORDING START>: FINISHED---');
+                    } else if (messageContent === 'Apply Merging Strategy: Metronome Start') {
+                        console.log('---APPLY MERGING STRATEGY <METRONOME START>: STARTED---');
+                        exports.mergingVideosCommand = videoHandler.cutVideosByTimestampAndRebuildFFMPEGCommandSync(
+                            inputDirectory = 'output',
+                            inputVideosArray = exports.prepareCommandDict['inputVideosArray'],
+                            timeStampArgument = 'Metronome Start',
+                            maxHeight = exports.prepareCommandDict['maxHeight'],
+                            maxWidth = exports.prepareCommandDict['maxWidth'],
+                            outputFile = exports.prepareCommandDict['output']
+                        );
+                        console.log('---APPLY MERGING STRATEGY <METRONOME START>: FINISHED---');
+                    } else if (messageContent === 'Apply Merging Strategy: Singing Start') {
+                        console.log('---APPLY MERGING STRATEGY <SINGING START>: STARTED---');
+                        exports.mergingVideosCommand = videoHandler.cutVideosByTimestampAndRebuildFFMPEGCommandSync(
+                            inputDirectory = 'output',
+                            inputVideosArray = exports.prepareCommandDict['inputVideosArray'],
+                            timeStampArgument = 'Counting In Stopped',
+                            maxHeight = exports.prepareCommandDict['maxHeight'],
+                            maxWidth = exports.prepareCommandDict['maxWidth'],
+                            outputFile = exports.prepareCommandDict['output']
+                        );
+                        console.log('---APPLY MERGING STRATEGY <SINGING START>: FINISHED---');
                     }
+                    /**
+                     * MERGING VIDEO
+                     */
                     else if (messageContent === 'Merge Videos') {
                         console.log('---MERGING VIDEOS: STARTED---');
                         videoHandler.executeSyncFFMPEGCommand(

@@ -23,7 +23,7 @@ exports.prepareVideoFilesAndCreateMergingCommandSync = (inputDirectory = 'output
     let rawVideosArray = [];
     outputContent.forEach( file => {
         const filePath = path.join(process.env.PWD, inputDirectory, file.name);
-        if ((! fs.statSync(filePath).isDirectory()) && (path.extname(filePath) === ('.mp4' || '.webm'))) {
+        if ((! fs.statSync(filePath).isDirectory()) && ((path.extname(filePath) === ('.mp4')) || (path.extname(filePath) === ('.webm')))) {
             rawVideosArray.push(filePath);
         }
     });
@@ -268,8 +268,6 @@ exports.cutVideosByTimestampAndRebuildFFMPEGCommandSync = (
  * ==> ...merge videos together with client video pool
  */
 exports.cutVideosByTimestampSync = (inputDirectory, inputVideosArray, timestampArgument = 'Metronome Start') => {
-    console.log(`---CUTTING OFFSET BY MERGING-STRATEGY <${timestampArgument}>: STARTED---`);
-
     var cuttedVideosArray = [];
     // json Files with Timestamp
     let jsonTimestampArray = [];
@@ -327,7 +325,6 @@ exports.cutVideosByTimestampSync = (inputDirectory, inputVideosArray, timestampA
         exports.executeSyncFFMPEGCommand(ffmpegCutCommand);
         cuttedVideosArray.push(outputFilePath);
     }
-    console.log(`---CUTTING OFFSET BY MERGING-STRATEGY <${timestampArgument}>: FINISHED---`)
     return cuttedVideosArray;
 }
 
