@@ -268,11 +268,13 @@ exports.cutVideosByTimestamp = (inputDirectory, inputVideosArray, timestampArgum
 
 
     // parent directory path of cropped videos
-    preparationDirectory = path.dirname(inputVideosArray[0]);
+    absolutePreparationDirectory = path.resolve(path.dirname(inputVideosArray[0]));
+    workingDir = path.resolve(process.env.PWD);
+    preparationDirectory = absolutePreparationDirectory.replace(workingDir + '/', '');
 
     const cuttedVideoDirectory = exports.createDirectoryWithTimeStamp(
         directoryName = `video_cutted`,
-        baseDirectory = preparationDirectory
+        baseDirectory = preparationDirectory,
     );
 
     // get relevant source videos by matching json-file
