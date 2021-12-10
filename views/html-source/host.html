@@ -23,18 +23,24 @@
         <br>
         <div id="metronomeIconsContainer"></div>
         <br>
+        <h2>Start Sounds</h2>
         start sounds: <input id="startSoundsInput" placeholder="d4, f#4, a4, c3"/>
         <button onclick="saveStartSounds()">Save Start Sounds</button>
         <br>
         <br>
+        <h2>Broadcast Actions</h2>
         <button onclick="sendBroadcastStart()">Broadcast: Start</button>
         <button onclick="sendBroadcastStop()">Broadcast: Stop</button>
         <br>
         <br>
+        <h2>Prepare Merging</h2>
         <button onclick="prepareMergingVideos()">Prepare Merging Videos</button>
+        <h2>Merging Strategies</h2>
         <button onclick="applyMergingStrategyRecordingStart()">Merging Strategy: Recording Start</button>
         <button onclick="applyMergingStrategyMetronomeStart()">Merging Strategy: Metronome Start</button>
         <button onclick="applyMergingStrategySingingStart()">Merging Strategy: Singing Start</button>
+        <button onclick="applyMergingStrategyAudioPeak()">Merging Strategy: Audio Peak</button>
+        <h2>Merging Videos</h2>
         <button onclick="mergeVideos()">Merge Videos</button>
     </body>
     <script src="./../../dist/bundle-host.js" type="text/javascript"></script>

@@ -63,10 +63,10 @@ exports.communicationService = (webSocketServer, ws) => {
                      */
                     else if (messageContent === 'Apply Merging Strategy: Recording Start') {
                         console.log('---APPLY MERGING STRATEGY <RECORDING START>: STARTED---');
-                        exports.mergingVideosCommand = videoHandler.cutVideosByTimestampAndRebuildFFMPEGCommandSync(
+                        exports.mergingVideosCommand = videoHandler.applyPreparationForMergingStrategyAndRebuildFFMPEGCommandSync(
                             inputDirectory = 'output',
                             inputVideosArray = exports.prepareCommandDict['inputVideosArray'],
-                            timeStampArgument = 'Recording Start',
+                            mergingStrategy = 'Recording Start',
                             maxHeight = exports.prepareCommandDict['maxHeight'],
                             maxWidth = exports.prepareCommandDict['maxWidth'],
                             outputFile = exports.prepareCommandDict['output']
@@ -74,10 +74,10 @@ exports.communicationService = (webSocketServer, ws) => {
                         console.log('---APPLY MERGING STRATEGY <RECORDING START>: FINISHED---');
                     } else if (messageContent === 'Apply Merging Strategy: Metronome Start') {
                         console.log('---APPLY MERGING STRATEGY <METRONOME START>: STARTED---');
-                        exports.mergingVideosCommand = videoHandler.cutVideosByTimestampAndRebuildFFMPEGCommandSync(
+                        exports.mergingVideosCommand = videoHandler.applyPreparationForMergingStrategyAndRebuildFFMPEGCommandSync(
                             inputDirectory = 'output',
                             inputVideosArray = exports.prepareCommandDict['inputVideosArray'],
-                            timeStampArgument = 'Metronome Start',
+                            mergingStrategy = 'Metronome Start',
                             maxHeight = exports.prepareCommandDict['maxHeight'],
                             maxWidth = exports.prepareCommandDict['maxWidth'],
                             outputFile = exports.prepareCommandDict['output']
@@ -85,15 +85,26 @@ exports.communicationService = (webSocketServer, ws) => {
                         console.log('---APPLY MERGING STRATEGY <METRONOME START>: FINISHED---');
                     } else if (messageContent === 'Apply Merging Strategy: Singing Start') {
                         console.log('---APPLY MERGING STRATEGY <SINGING START>: STARTED---');
-                        exports.mergingVideosCommand = videoHandler.cutVideosByTimestampAndRebuildFFMPEGCommandSync(
+                        exports.mergingVideosCommand = videoHandler.applyPreparationForMergingStrategyAndRebuildFFMPEGCommandSync(
                             inputDirectory = 'output',
                             inputVideosArray = exports.prepareCommandDict['inputVideosArray'],
-                            timeStampArgument = 'Counting In Stopped',
+                            mergingStrategy = 'Counting In Stopped',
                             maxHeight = exports.prepareCommandDict['maxHeight'],
                             maxWidth = exports.prepareCommandDict['maxWidth'],
                             outputFile = exports.prepareCommandDict['output']
                         );
                         console.log('---APPLY MERGING STRATEGY <SINGING START>: FINISHED---');
+                    } else if (messageContent === 'Apply Merging Strategy: Audio Peak') {
+                        console.log('---APPLY MERGING STRATEGY <AUDIO PEAK>: STARTED---');
+                        exports.mergingVideosCommand = videoHandler.applyPreparationForMergingStrategyAndRebuildFFMPEGCommandSync(
+                            inputDirectory = 'output',
+                            inputVideosArray = exports.prepareCommandDict['inputVideosArray'],
+                            mergingStrategy = 'Audio Peak',
+                            maxHeight = exports.prepareCommandDict['maxHeight'],
+                            maxWidth = exports.prepareCommandDict['maxWidth'],
+                            outputFile = exports.prepareCommandDict['output']
+                        );
+                        console.log('---APPLY MERGING STRATEGY <AUDIO PEAK>: FINISHED---');
                     }
                     /**
                      * MERGING VIDEO

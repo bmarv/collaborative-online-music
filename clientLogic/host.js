@@ -208,3 +208,8 @@ const applyMergingStrategySingingStart = () => {
     sendMessage(id = exports.hostId, messageType = 'Message', message = 'Apply Merging Strategy: Singing Start', additionalContent = false);
 }
 window.applyMergingStrategySingingStart = applyMergingStrategySingingStart;
+
+const applyMergingStrategyAudioPeak = () => {
+    sendMessage(id = exports.hostId, messageType = 'Message', message = 'Apply Merging Strategy: Audio Peak', additionalContent = false);
+}
+window.applyMergingStrategyAudioPeak = applyMergingStrategyAudioPeak;
