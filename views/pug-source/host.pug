@@ -25,19 +25,25 @@ button#muteMetronomeButton Mute/Unmute
 br
 #metronomeIconsContainer
 br
+h2 Start Sounds
 |         start sounds: 
 input#startSoundsInput(placeholder='d4, f#4, a4, c3')
 button(onclick='saveStartSounds()') Save Start Sounds
 br
 br
+h2 Broadcast Actions
 button(onclick='sendBroadcastStart()') Broadcast: Start
 button(onclick='sendBroadcastStop()') Broadcast: Stop
 br
 br
+h2 Prepare Merging
 button(onclick='prepareMergingVideos()') Prepare Merging Videos
+h2 Merging Strategies
 button(onclick='applyMergingStrategyRecordingStart()') Merging Strategy: Recording Start
 button(onclick='applyMergingStrategyMetronomeStart()') Merging Strategy: Metronome Start
 button(onclick='applyMergingStrategySingingStart()') Merging Strategy: Singing Start
+button(onclick='applyMergingStrategyAudioPeak()') Merging Strategy: Audio Peak
+h2 Merging Videos
 button(onclick='mergeVideos()') Merge Videos
 script 
   | var localAddress="#{localAddress}"

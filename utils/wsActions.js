@@ -94,6 +94,17 @@ exports.communicationService = (webSocketServer, ws) => {
                             outputFile = exports.prepareCommandDict['output']
                         );
                         console.log('---APPLY MERGING STRATEGY <SINGING START>: FINISHED---');
+                    } else if (messageContent === 'Apply Merging Strategy: Audio Peak') {
+                        console.log('---APPLY MERGING STRATEGY <AUDIO PEAK>: STARTED---');
+                        exports.mergingVideosCommand = videoHandler.applyPreparationForMergingStrategyAndRebuildFFMPEGCommandSync(
+                            inputDirectory = 'output',
+                            inputVideosArray = exports.prepareCommandDict['inputVideosArray'],
+                            mergingStrategy = 'Audio Peak',
+                            maxHeight = exports.prepareCommandDict['maxHeight'],
+                            maxWidth = exports.prepareCommandDict['maxWidth'],
+                            outputFile = exports.prepareCommandDict['output']
+                        );
+                        console.log('---APPLY MERGING STRATEGY <AUDIO PEAK>: FINISHED---');
                     }
                     /**
                      * MERGING VIDEO
