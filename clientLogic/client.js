@@ -5,6 +5,7 @@ const Buffer = buffer.Buffer
 
 const wsMessage = require('../utils/wsMessage');
 const metronome = require('../utils/metronome');
+const soundHandler = require('../utils/soundHandler');
 
 const port = process.env.PORT || 3000;
 
@@ -16,6 +17,7 @@ exports.metronomeInstanceSoundActive = true;
 exports.bpmInput = null;
 exports.nominatorInput = null;
 exports.denominatorInput = null;
+exports.startSoundArray = null;
 
 const setIpAdress = () => {
     const reqIpSplittedArray = localAddress.split(':');
@@ -49,11 +51,13 @@ socket.addEventListener('message', function (event) {
         if (messageContent === 'Broadcast from Host: Start') {
             console.log('START METRONOME');
             let additionalContent = serverDataObj.additionalContent;
-            exports.bpmInput = additionalContent.bpm;
-            exports.nominatorInput = additionalContent.nominator;
-            exports.denominatorInput = additionalContent.denominator;
-    
-            startClientMetronome();
+            exports.bpmInput = additionalContent.metronomeConstraints.bpm;
+            exports.nominatorInput = additionalContent.metronomeConstraints.nominator;
+            exports.denominatorInput = additionalContent.metronomeConstraints.denominator;
+            exports.startSoundArray = additionalContent.startSoundArray;
+            
+            playToneArrayAndStartClientMetronome();
+
             navigator.mediaDevices.getUserMedia(mediaConstraints)
             .then(startVideoRecording)
             .catch(errorCallbackVideoStream);
@@ -140,7 +144,8 @@ navigator.mediaDevices.getUserMedia(mediaConstraints)
             .then(streamWebcamVideoToBrowserClient)
             .catch(errorCallbackVideoStream);
 
-const startClientMetronome = async() => {
+const playToneArrayAndStartClientMetronome = async() => {
+    await soundHandler.playToneArrayWithTimeout(exports.startSoundArray, timeout = 1000);
     // visual container
     const metronomeIconsContainer = document.getElementById('metronomeIconsContainer');
     // delete lastly used Elements

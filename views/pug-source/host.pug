@@ -11,19 +11,23 @@ h1
 br
 h2 Metronome
 |         bpm:
-input#bpmInput(type='number' min='0' size='5')
+input#bpmInput(type='number' min='0' size='5' placeholder='80')
 br
 |         beat: nominator  : 
-input#nominatorInput(type='number' min='0' size='5')
+input#nominatorInput(type='number' min='0' size='5' placeholder='3')
 br
 |         beat: denominator: 
-input#denominatorInput(type='number' min='0' size='5')
+input#denominatorInput(type='number' min='0' size='5' placeholder='4')
 br
 button(onclick='startMetronome()') Start Metronome
 button#stopMetronomeButton Stop Metronome
 button#muteMetronomeButton Mute/Unmute
 br
 #metronomeIconsContainer
+br
+|         start sounds: 
+input#startSoundsInput(placeholder='d4, f#4, a4, c3')
+button(onclick='saveStartSounds()') Save Start Sounds
 br
 br
 button(onclick='sendBroadcastStart()') Broadcast: Start

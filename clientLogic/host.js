@@ -1,5 +1,6 @@
 const wsMessage = require('../utils/wsMessage');
 const metronome = require('../utils/metronome');
+const soundHandler = require('../utils/soundHandler');
 
 const port = process.env.PORT || 3000;
 
@@ -12,6 +13,7 @@ exports.nominatorInput = null;
 exports.denominatorInput = null;
 exports.metronomeConstraints = null;
 exports.mergingVideosCommand = null;
+exports.startSoundsArray = null;
 
 const setIpAdress = () => {
     const reqIpSplittedArray = localAddress.split(':');
@@ -92,10 +94,19 @@ window.sendBroadcast = sendBroadcast;
 
 
 // TODO: UNIFY BROADCAST MESSAGE
-const sendBroadcastStart = (message = 'Broadcast from Host: Start', additionalContent = exports.metronomeConstraints) => sendBroadcast(message, additionalContent);
+const sendBroadcastStart = (
+    message = 'Broadcast from Host: Start', 
+    additionalContent = {
+        'metronomeConstraints': exports.metronomeConstraints,
+        'startSoundArray': exports.startSoundsArray
+    }
+) => sendBroadcast(message, additionalContent);
 window.sendBroadcastStart = sendBroadcastStart;
 
-const sendBroadcastStop = (message = 'Broadcast from Host: Stop', additionalContent = false) => sendBroadcast(message, additionalContent);
+const sendBroadcastStop = (
+    message = 'Broadcast from Host: Stop', 
+    additionalContent = false
+) => sendBroadcast(message, additionalContent);
 window.sendBroadcastStop = sendBroadcastStop;
 
 const startMetronome = async() => {
@@ -175,3 +186,10 @@ const mergeVideos = () => {
     sendMessage(id = exports.hostId, messageType = 'Message', message = 'Merge Videos', additionalContent = false);
 }
 window.mergeVideos = mergeVideos;
+
+const saveStartSounds = async() => {
+    const startSoundsRawInput = document.getElementById('startSoundsInput').value;
+    exports.startSoundsArray = startSoundsRawInput.split(',');
+    await soundHandler.playToneArrayWithTimeout(exports.startSoundsArray, timeout = 1000);
+}
+window.saveStartSounds = saveStartSounds;
