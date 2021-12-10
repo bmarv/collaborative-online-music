@@ -4,6 +4,9 @@
   "description": "",
   "main": "index.js",
   "type": "commonjs",
+  "nodemonConfig": {
+    "ignore": ["output/*"]
+  },
   "scripts": {
     "start": "node index",
     "build-client": "npx browserify clientLogic/client.js -o dist/bundle-client.js",

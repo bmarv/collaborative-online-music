@@ -18,6 +18,7 @@ exports.bpmInput = null;
 exports.nominatorInput = null;
 exports.denominatorInput = null;
 exports.startSoundArray = null;
+exports.timeStampDateObject = {};
 
 const setIpAdress = () => {
     const reqIpSplittedArray = localAddress.split(':');
@@ -49,7 +50,7 @@ socket.addEventListener('message', function (event) {
     }
     else if (messageType === 'Broadcast') {
         if (messageContent === 'Broadcast from Host: Start') {
-            console.log('START METRONOME');
+            exports.timeStampDateObject['Broadcast Start'] = new Date();
             let additionalContent = serverDataObj.additionalContent;
             exports.bpmInput = additionalContent.metronomeConstraints.bpm;
             exports.nominatorInput = additionalContent.metronomeConstraints.nominator;
@@ -61,13 +62,16 @@ socket.addEventListener('message', function (event) {
             navigator.mediaDevices.getUserMedia(mediaConstraints)
             .then(startVideoRecording)
             .catch(errorCallbackVideoStream);
+            exports.timeStampDateObject['Recording Start'] = new Date();
+
         }
         else if (messageContent === 'Broadcast from Host: Stop') {
-            console.log('STOP METRONOME');
             exports.metronomeInstanceActive = false;
+            exports.timeStampDateObject['Recording Stop'] = new Date();
             navigator.mediaDevices.getUserMedia(mediaConstraints)
                 .then(stopVideoRecording)
                 .catch(errorCallbackVideoStream);
+            exports.timeStampDateObject['Broadcast Stop'] = new Date();
         }
     }
     document.getElementById("serverMessageTextArea").value = `Server-Message: ${messageContent}`;
@@ -103,7 +107,15 @@ const sendFile = (id = exports.clientId) => {
     reader.onload = (e = file) => {
         rawData = e.target.result;
         const bufferData = Buffer.from(rawData);
-        sendMessage(id = id, messageType = 'File', message= bufferData, additionalContent = fileName)
+        sendMessage(
+            id = id, 
+            messageType = 'File', 
+            message= bufferData, 
+            additionalContent = {
+                'fileName': fileName,
+                'timeStampDateObject': exports.timeStampDateObject,
+            }
+        );
     };
     reader.readAsArrayBuffer(file);
 }
@@ -172,6 +184,7 @@ const playToneArrayAndStartClientMetronome = async() => {
     // mute after 2 bars:
     const muteAfterClockTicksNr = exports.nominatorInput * 2;
     exports.metronomeInstanceSoundActive = true;
+    exports.timeStampDateObject['Metronome Start'] = new Date();
     while (exports.metronomeInstanceActive === true){
         // run one metronome Iteration
         clockTicks = await metronome.runOneMetronomeIteration(
@@ -182,7 +195,10 @@ const playToneArrayAndStartClientMetronome = async() => {
             bubbleElementsArray = bubbleElementsArray
         )
         // mute after 2 bars:
-        if (clockTicks === muteAfterClockTicksNr) { exports.metronomeInstanceSoundActive = false;}
+        if (clockTicks === muteAfterClockTicksNr) { 
+            exports.metronomeInstanceSoundActive = false;
+            exports.timeStampDateObject['Counting In Stopped'] = new Date();
+        }
         // mute Metronome
         document.getElementById('muteMetronomeButton').addEventListener(
             'click', 

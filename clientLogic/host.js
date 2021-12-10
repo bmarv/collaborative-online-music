@@ -193,3 +193,18 @@ const saveStartSounds = async() => {
     await soundHandler.playToneArrayWithTimeout(exports.startSoundsArray, timeout = 1000);
 }
 window.saveStartSounds = saveStartSounds;
+
+const applyMergingStrategyRecordingStart = () => {
+    sendMessage(id = exports.hostId, messageType = 'Message', message = 'Apply Merging Strategy: Recording Start', additionalContent = false);
+}
+window.applyMergingStrategyRecordingStart = applyMergingStrategyRecordingStart;
+
+const applyMergingStrategyMetronomeStart = () => {
+    sendMessage(id = exports.hostId, messageType = 'Message', message = 'Apply Merging Strategy: Metronome Start', additionalContent = false);
+}
+window.applyMergingStrategyMetronomeStart = applyMergingStrategyMetronomeStart;
+
+const applyMergingStrategySingingStart = () => {
+    sendMessage(id = exports.hostId, messageType = 'Message', message = 'Apply Merging Strategy: Singing Start', additionalContent = false);
+}
+window.applyMergingStrategySingingStart = applyMergingStrategySingingStart;

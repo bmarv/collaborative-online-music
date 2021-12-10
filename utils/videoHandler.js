@@ -3,23 +3,19 @@ const path = require('path');
 const fs = require('fs');
 const ffmpeg = require('fluent-ffmpeg');
 
-exports.createDirectoryWithTimeStamp = (directoryName) => {
-    const dateTime = exports.getDateTimeString();
+const helper = require('./helper');
+const fileHandler = require('./fileHandler');
+
+exports.createDirectoryWithTimeStamp = (directoryName, baseDirectory = 'output') => {
+    const dateTime = helper.getDateTimeString();
     const directoryNameWTimeStamp = `${directoryName}_${dateTime}`;
-    const directoryPath = path.join(process.env.PWD, 'output', directoryNameWTimeStamp);
+    const directoryPath = path.join(process.env.PWD, baseDirectory, directoryNameWTimeStamp);
     fs.mkdirSync(directoryPath, { recursive: true} );
     return directoryPath;
 }
 
-exports.getDateTimeString = () => {
-    const currentDate = new Date();
-    const cDate = currentDate.getFullYear() + '-' + (currentDate.getMonth() + 1) + '-' + currentDate.getDate();
-    const cTime = currentDate.getHours() + "-" + currentDate.getMinutes() + "-" + currentDate.getSeconds();
-    const dateTime = cDate + '_' + cTime;
-    return dateTime;
-}
 
-exports.prepareVideoFilesAndCreateMergingCommand = (inputDirectory = 'output', outputResolution = '480') => {
+exports.prepareVideoFilesAndCreateMergingCommandSync = (inputDirectory = 'output', outputResolution = '480') => {
     const outputContent = fs.readdirSync(
         path.join(process.env.PWD, inputDirectory), 
         { withFileTypes: true } 
@@ -27,7 +23,7 @@ exports.prepareVideoFilesAndCreateMergingCommand = (inputDirectory = 'output', o
     let rawVideosArray = [];
     outputContent.forEach( file => {
         const filePath = path.join(process.env.PWD, inputDirectory, file.name);
-        if (! fs.statSync(filePath).isDirectory() ) {
+        if ((! fs.statSync(filePath).isDirectory()) && ((path.extname(filePath) === ('.mp4')) || (path.extname(filePath) === ('.webm')))) {
             rawVideosArray.push(filePath);
         }
     });
@@ -42,14 +38,14 @@ exports.prepareVideoFilesAndCreateMergingCommand = (inputDirectory = 'output', o
 
     // height and width values
     const heightAndWidthObject = exports.getHeightAndWidthOfParticipants( size= croppedVideosArray.length);
-
+    
+    // command for merging videos
     outputFile = String(path.join(
         process.env.PWD,
         inputDirectory,
-        `merged_video__${exports.getDateTimeString()}.mp4`
+        `merged_video__${helper.getDateTimeString()}.mp4`
     ));
 
-    // command for merging videos
     const mergeVideoTilesCommand = exports.createMergeVideoTilesCommand(
         inputVideosArray = croppedVideosArray,
         maxHeight = heightAndWidthObject['height'],
@@ -59,6 +55,9 @@ exports.prepareVideoFilesAndCreateMergingCommand = (inputDirectory = 'output', o
 
     return {
         'command': mergeVideoTilesCommand,
+        'inputVideosArray': inputVideosArray,
+        'maxHeight': maxHeight,
+        'maxWidth': maxWidth,
         'output': outputFile
     };
 }
@@ -180,7 +179,7 @@ exports.createMergeVideoTilesCommand = (inputVideosArray = [], maxHeight, maxWid
     return ffmpegCommand;
 }
 
-exports.executeMergingVideoTilesToOneOutputFile = (ffmpegCommand) => {
+exports.executeSyncFFMPEGCommand = (ffmpegCommand) => {
     console.log('FFMPEG COMMAND: ', ffmpegCommand);
     const output = execSync(`ffmpegCmd=\'${ffmpegCommand}\'; bash <<< \"$ffmpegCmd\"`, { shell: '/bin/bash' });
     return output;
@@ -227,4 +226,149 @@ exports.getVideoLayoutCommand = (inputVideosArray = [], maxHeight, maxWidth) => 
     }
     layoutCommand = layoutCommand.substring(1); //removing the first '|' char
     return layoutCommand
+}
+
+exports.cutVideosByTimestampAndRebuildFFMPEGCommandSync = (
+    inputDirectory,
+    inputVideosArray,
+    timeStampArgument,
+    maxHeight,
+    maxWidth,
+    outputFile,
+) => {
+    const cuttedVideosArray = exports.cutVideosByTimestampSync(inputDirectory, inputVideosArray, timeStampArgument);
+    const ffmpegCommandRebuild = exports.createMergeVideoTilesCommand(
+        inputVideosArray = cuttedVideosArray,
+        maxHeight = maxHeight,
+        maxWidth = maxWidth,
+        outputFile = outputFile
+    );
+    return ffmpegCommandRebuild;
+}
+
+
+/** Client Timestamp Normalization
+ * cutting of the beginning of video data from clients using ffmpeg 
+ * to dissolve different video length due to different performance
+ * of different client types
+ *
+ * ====prepareVideoFilesAndCreateMergingCommand(... mergingStrategy = clientTimestampNormalization)===
+ * ==> ...prepare videos with getting videos, cropping the resolution
+ * 
+ *  *   create cutted video directory
+ *  *   for every client video: 
+ *      *   get json-content with timestamp- metainformations with:
+ *      *   compute timeframe to be cutted off 
+ *          between broadcast start and metronome start (or Counting In Stopped)
+ *          milliseconds = new Date(jsonData['Metronome Start']).valueOf() - new Date(jsonData['Recording Start']).valueOf()
+ *      *   cut video using ffmpeg with:
+ *          ffmpeg -ss 00:00:03.014 -i 71.webm cut_71.webm
+ *          // -ss HH:mm:ss.mil <== mil = milliseconds
+ *  
+ * ==> ...merge videos together with client video pool
+ */
+exports.cutVideosByTimestampSync = (inputDirectory, inputVideosArray, timestampArgument = 'Metronome Start') => {
+    var cuttedVideosArray = [];
+    // json Files with Timestamp
+    let jsonTimestampArray = [];
+    const outputContent = fs.readdirSync(
+        path.join(process.env.PWD, inputDirectory), 
+        { withFileTypes: true } 
+    );
+    outputContent.forEach( file => {
+        const filePath = path.join(process.env.PWD, inputDirectory, file.name);
+        if ((! fs.statSync(filePath).isDirectory()) && (path.extname(filePath) === ('.json'))) {
+            jsonTimestampArray.push(filePath);
+        }
+    });
+
+
+    // parent directory path of cropped videos
+    absolutePreparationDirectory = path.resolve(path.dirname(inputVideosArray[0]));
+    workingDir = path.resolve(process.env.PWD);
+    preparationDirectory = absolutePreparationDirectory.replace(workingDir + '/', '');
+
+    const cuttedVideoDirectory = exports.createDirectoryWithTimeStamp(
+        directoryName = `video_cutted`,
+        baseDirectory = preparationDirectory,
+    );
+
+    // get relevant source videos by matching json-file
+    relevantSourceFileArray = [];
+    relevantJsonFileArray = [];
+    for (var jsonFile of jsonTimestampArray) {
+        const jsonFileUUID = (path.basename(jsonFile)).split('_')[0];
+        for (var sourceFile of inputVideosArray) {
+            const sourceFileUUID = (path.basename(sourceFile)).split('_')[1];
+            if (jsonFileUUID === sourceFileUUID) {
+                relevantJsonFileArray.push(jsonFile);
+                relevantSourceFileArray.push(sourceFile);
+            }
+        }
+    }
+
+    // calculate cuttable offset
+    // for (var jsonDataFile of relevantJsonFileArray) {
+    for (var index = 0; index < relevantJsonFileArray.length; index += 1){
+        const jsonDataFile = relevantJsonFileArray[index];
+        const sourceFile = relevantSourceFileArray[index];
+        const jsonData = fileHandler.readJsonDataFromFile(jsonDataFile);
+        const cuttableOffset = new Date(jsonData[String(timestampArgument)]).valueOf() - new Date(jsonData['Recording Start']).valueOf();
+        const cuttableOffsetString = exports.createCuttableOffsetString(cuttableOffset);
+
+        // ffmpeg
+        const outputFilePath = path.join(
+            cuttedVideoDirectory,
+            `cut_${path.basename(sourceFile)}`
+        );
+        const ffmpegCutCommand = `ffmpeg -ss ${cuttableOffsetString} -i ${sourceFile} ${outputFilePath}`;
+        exports.executeSyncFFMPEGCommand(ffmpegCutCommand);
+        cuttedVideosArray.push(outputFilePath);
+    }
+    return cuttedVideosArray;
+}
+
+exports.createCuttableOffsetString = (cuttableOffset) => {
+    const seconds = cuttableOffset / 1000;
+        var offsetString = "00:" // hours
+        // minutes present
+        if (seconds > 60) {
+            const minutesFloored = Math.floor(seconds / 60);
+            const restSeconds = (seconds / 60) % 60;
+            if (minutesFloored < 10) {
+                offsetString += `0${minutesFloored}:`;  //min
+            } else {
+                offsetString += `${minutesFloored}:`;   //min
+            }
+            if (restSeconds < 10) {
+                offsetString += `0${String(restSeconds).split('.')[0]}.`; //sec
+            } else {
+                offsetString += `${String(restSeconds).split('.')[0]}.`; //sec
+            }
+            // milliseconds present
+            if ( (String(restSeconds).split('.')).length > 1 ) {
+                const formedMilliseconds = String(restSeconds).split('.')[1].substring(0,3);
+                offsetString += `${formedMilliseconds}`;    //ms
+            } else {
+                // no milliseconds present
+                offsetString += `000`;    //ms
+            }
+        } else {
+            // no minutes present
+            offsetString += `00:`;  // min
+            if (seconds < 10) {
+                offsetString += `0${String(seconds).split('.')[0]}.`; //sec
+            } else {
+                offsetString += `${String(seconds).split('.')[0]}.`; //sec
+            }
+            // milliseconds present
+            if ( (String(seconds).split('.')).length > 1) {
+                const formedMilliseconds = String(seconds).split('.')[1].substring(0,3);
+                offsetString += `${formedMilliseconds}`;    //ms
+            } else {
+                // no milliseconds present
+                offsetString += `000`;    //ms
+            }
+        }
+        return offsetString;
 }
