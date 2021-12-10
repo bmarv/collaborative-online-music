@@ -372,3 +372,112 @@ exports.createCuttableOffsetString = (cuttableOffset) => {
         }
         return offsetString;
 }
+
+exports.cutVideosByAudioPeak = (inputDirectory, inputVideosArray) => {
+    // create audio peak directory
+    let cuttedVideosArray = [];
+    let audioPeakFileArray = [];
+    const outputContent = fs.readdirSync(
+        path.join(process.env.PWD, inputDirectory), 
+        { withFileTypes: true } 
+    );
+    // parent directory path of cropped videos
+    absolutePreparationDirectory = path.resolve(path.dirname(inputVideosArray[0]));
+    workingDir = path.resolve(process.env.PWD);
+    preparationDirectory = absolutePreparationDirectory.replace(workingDir + '/', '');
+
+    const cuttedVideoDirectory = exports.createDirectoryWithTimeStamp(
+        directoryName = `video_cutted_audio_peak`,
+        baseDirectory = preparationDirectory,
+    );
+
+    // analyze files and save output in dir
+    for (var sourceFile of inputVideosArray) {
+        const fileBaseName = path.basename(sourceFile);
+        const clientUuid = fileBaseName.split('_')[0];
+        const audioPeakFileName = `${clientUuid}_audio_peak_analysis.txt`;
+        const audioPeakFilePath = path.resolve(cuttedVideoDirectory, audioPeakFileName);
+        audioPeakFileArray.push(audioPeakFilePath);
+        const ffmpegAnalyzeAudioPeakCommand = `ffmpeg -hide_banner -i ${sourceFile} -map 0:a:0 -filter:a:0 ebur128='peak=+true' -f null - 2> ${audioPeakFilePath}`;
+        exports.executeSyncFFMPEGCommand(ffmpegAnalyzeAudioPeakCommand);
+    }
+    // read files
+    let peakOfClientObject = {};
+    for (var audioPeakFile of audioPeakFileArray) {
+        let content = null;
+        let relevantLinesArray = [];
+        let fileLineArray = [];
+        try {
+            content = fs.readFileSync(audioPeakFile, 'utf8');
+        } catch (err) { console.error(err);}
+        fileLineArray = content.split('\n');
+        for (var line of fileLineArray) {
+            if (line.startsWith('[Parsed_ebur128_0')) {
+                relevantLinesArray.push(line);
+            }
+        }
+        // remove Summary Line (last line)
+        relevantLinesArray = relevantLinesArray.slice(0, -1);
+        console.log(relevantLinesArray);
+        // collect time and M values
+        let timeAndMValueArray = [];
+        for (var index = 0; index < relevantLinesArray.length; index += 1) {
+            const timeString = relevantLinesArray[index].match(/t\:[\s]*([\d\.]*)/)[0];
+            const timeValue = Number(timeString.replace('t:', '').trim());
+            const mString = relevantLinesArray[index].match(/M\:[\s]*([-\d\.]*)/)[0];
+            const mValue = Number(mString.replace('M:', '').trim());
+            timeAndMValueArray.push({
+                'time': timeValue,
+                'm': mValue
+            });
+
+        }
+        // moving average of 7 steps to get first peak
+        movingMeanDictArray = [];
+        for (var i = 3; i < timeAndMValueArray.length - 4; i += 1){
+            mean = (
+                timeAndMValueArray[i-3]['m'] 
+                + timeAndMValueArray[i-2]['m'] 
+                + timeAndMValueArray[i-1]['m']
+                + timeAndMValueArray[i]['m'] 
+                + timeAndMValueArray[i+1]['m'] 
+                + timeAndMValueArray[i+2]['m']
+                + timeAndMValueArray[i+3]['m']
+                ) / 7.0;
+            time = timeAndMValueArray[i]['time'];
+            movingMeanDictArray.push({
+                'time': time, 
+                'mean': mean
+            })
+            // console.log('t: ',time, ' mean: ',mean)
+        }
+
+        // calculate peak:= t[i+5] > t[i] + 30; data from moving average
+        let peakArray = [];
+        for (var i=0; i < movingMeanDictArray.length-6; i+=1){
+            if (movingMeanDictArray[i+5]['mean']> movingMeanDictArray[i]['mean']+ 30){
+                console.log('peak found between: ',movingMeanDictArray[i]['time'], ' and ', movingMeanDictArray[i+5]['time']);
+                peakArray.push(movingMeanDictArray[i]['time']);
+            }
+        }
+        // convert first peak-time to ffmpeg-format
+        const cuttableTimeFFMPEGFormat = new Date(peakArray[0] * 1000).toISOString().substr(11,12);
+        
+        const clientUuidAnalysisFile = path.basename(audioPeakFile).split('_')[0];
+        peakOfClientObject[clientUuidAnalysisFile] = cuttableTimeFFMPEGFormat;
+    }
+    console.log(peakOfClientObject)
+    // execute command for cutting
+    for (var sourceFile of inputVideosArray) {
+        const clientUuidForCutting = path.basename(sourceFile).split('_')[0];
+        const cuttableTimeFFMPEGFormat = peakOfClientObject[clientUuidForCutting];
+        const outputFilePath = path.join(
+            cuttedVideoDirectory,
+            `cut_audio_peak_${path.basename(sourceFile)}`
+        );
+        const ffmpegCutCommand = `ffmpeg -ss ${cuttableTimeFFMPEGFormat} -i ${sourceFile} ${outputFilePath}`;
+        exports.executeSyncFFMPEGCommand(ffmpegCutCommand);
+        cuttedVideosArray.push(outputFilePath);
+    }
+    return cuttedVideosArray;
+}
