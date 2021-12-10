@@ -58,10 +58,10 @@ Now it is needed to define the constraints for the **metronome**, which are safe
 <br><br>
 When the clients have registered to the program it is possible to **start the recording** of the clients with the button *broadcast start* and to **end the recording** with the button *broadcast stop*.\
 Now the clients need to send the created videofiles to the server; once these files have been uploaded to the server, the host needs to **prepare** the client video-files by adjusting the resolution to, by default, 480p in height and width.\
-As the client implicitly send meta-informations about their recording, it is possible to apply one of the following **merging strategies** by cutting the videos regarding the send timestamp from the meta-informations of each client: Recording Start, Metronome Start, Singing Start.\
+As the client implicitly send meta-informations about their recording, it is possible to apply one of the following **merging strategies** by cutting the videos regarding the send timestamp from the meta-informations of each client: Recording Start, Metronome Start, Singing Start. Another merging strategy is merging by the first audio peak, where the client audio-tracks of the video files will be analyzed regarding the loudness for every timestep. These results are used to calculate the moving average of 7 neighbored timesteps, so that it is possible to find real loudness peaks in the audio. A hardcoded argument for a peak is, when the proceeding moving average has a positive change of 30db. The client-videos will then be cut from their first audio peak.\
 After these steps have been applied, it is possible to **merge** the videos into one output file with the respective button. After the merge has been finalized, the host will receive the synchronized and merged video-file from the server automatically.
 <br><br>
-**Please note, that each step for modifying the videos results in a blocking state of the server, as this happens synchronous and that the host needs to be patient**
+**Please note, that each step for modifying the videos results in a blocking state of the server, as this happens synchronous and therefore the host needs to be patient and should have access to the server-logs and resource-monitor.**
 
 ### Client
 As a client, it is possible to use this program using this endpoint: `/client`.
