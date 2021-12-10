@@ -16,7 +16,7 @@
 <br><br>
 
 ## Installation
-This Program is build with the node-version 10.19 and requires a dependency ffmpeg for server-side media-manipulation and openssl for hosting with an ssl-certificate, which is installable on debian-based systems with the following command:
+This Program is build with the node-version 10.19 and requires as dependencies ffmpeg for server-side media-manipulation and openssl for hosting with an ssl-certificate, which is installable on debian-based systems with the following command:
 ```bash
 apt update
 apt install -y ffmpeg openssl
@@ -28,7 +28,7 @@ npm install
 ```
 
 ## SSL-Certificate
-The https-protocol is needed to run the program on the client-side with the usage of the usermedia. After installing the openssl for the ssl-certificate, it is possible to automatically creating and self-sign the certificate with the following make-target, which uses a shell-script:
+The https-protocol is needed to run the program on the client-side with the usage of the usermedia. After installing openssl for the ssl-certificate, it is possible to automatically create and self-sign the certificate with the following make-target, which uses a shell-script:
 ```bash
 make configure-and-sign-ssl-cert
 ```
@@ -44,11 +44,11 @@ To run the program on a linux system, use the following node-script to run it on
 ```bash
 npm run dev
 ```
-After the program is build, make sure to know the ip-address of the host system, which now runs the program. The ip-address can be found for every installed network-interface for example with the following command, make sure to use the ipv4 command of the interface that you are using:
+After the program is build, make sure to know the ip-address of the host system, which now runs the program. The ip-address can be found for every installed network-interface for example with the following command (make sure to use the ipv4 command of the interface that you are using):
 ```bash
 ifconfig
 ```
-Now the hosted program is reachable with the following base-endpoint:
+Now the hosted program is reachable on the entrypoint:
 `https://<ipv4-address>:3000/`
 
 ### Host
@@ -66,8 +66,8 @@ After these steps have been applied, it is possible to **merge** the videos into
 ### Client
 As a client, it is possible to use this program using this endpoint: `/client`.
 After accepting the warning about a potential security-risk due to the self-signed ssl-certificate, the client will be prompted to give the site permissions for using the videostream and microphone. After the client has given these permissions, the client should see the uuid, which is the unique idenfier of the client for the whole session. Buttons for **stopping or muting the metronome** can be triggered, but are highly advised to not be used! \
-After the host has configured the constraints for the program and starts the broadcast, the clients can see the broadcast-start message in the console on the top of the screen. A metronome starts counting in 2 bars and will be muted by default afterwards. A visually rendered metronome is shown additionally and throughout the whole session, if the button to stop the metronome is not clicked. \
-After the host stops the broadcast, the recorded video will be saved to the client, which results mostly in a prompt message by the used browser. Now it is neccessary by the client to upload this video-file by using the **choose file** button below the rendered client-video-stream. The created file is named after the client-uuid and the current timestamp.
+After the host has configured the constraints for the program and starts the broadcast, the clients can see the broadcast-start message in the console on the top of the screen. A metronome starts counting in 2 bars and will be muted by default afterwards. A visually rendered metronome is shown additionally throughout the whole session, if the button to stop the metronome is not clicked. \
+After the host stopped the broadcast, the recorded video will be saved to the client, which results mostly in a prompt message by the used browser. Now it is neccessary by the client to upload this video-file by using the **choose file** button below the rendered client-video-stream. The created file is named after the client-uuid and the current timestamp.
 
 
 ## CLIENT OS x Browser-Compability:
@@ -83,6 +83,6 @@ After the host stops the broadcast, the recorded video will be saved to the clie
 
 ## SERVER OS-Compability:
 * ffmpeg:
-    * command runs on linux
+    * works on linux
     * macos has a no measurable runtime (termination not encountered yet)
 * windows is not supported (filesystem)
