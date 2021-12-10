@@ -228,15 +228,20 @@ exports.getVideoLayoutCommand = (inputVideosArray = [], maxHeight, maxWidth) => 
     return layoutCommand
 }
 
-exports.cutVideosByTimestampAndRebuildFFMPEGCommandSync = (
+exports.applyPreparationForMergingStrategyAndRebuildFFMPEGCommandSync = (
     inputDirectory,
     inputVideosArray,
-    timeStampArgument,
+    mergingStrategy,
     maxHeight,
     maxWidth,
     outputFile,
 ) => {
-    const cuttedVideosArray = exports.cutVideosByTimestampSync(inputDirectory, inputVideosArray, timeStampArgument);
+    let cuttedVideosArray = [];
+    if (mergingStrategy === 'Audio Peak') {
+        cuttedVideosArray= exports.cutVideosByAudioPeakSync(inputDirectory, inputVideosArray);
+    } else {
+        cuttedVideosArray = exports.cutVideosByTimestampSync(inputDirectory, inputVideosArray, mergingStrategy);
+    }
     const ffmpegCommandRebuild = exports.createMergeVideoTilesCommand(
         inputVideosArray = cuttedVideosArray,
         maxHeight = maxHeight,
@@ -373,7 +378,7 @@ exports.createCuttableOffsetString = (cuttableOffset) => {
         return offsetString;
 }
 
-exports.cutVideosByAudioPeak = (inputDirectory, inputVideosArray) => {
+exports.cutVideosByAudioPeakSync = (inputDirectory, inputVideosArray) => {
     // create audio peak directory
     let cuttedVideosArray = [];
     let audioPeakFileArray = [];
@@ -394,7 +399,8 @@ exports.cutVideosByAudioPeak = (inputDirectory, inputVideosArray) => {
     // analyze files and save output in dir
     for (var sourceFile of inputVideosArray) {
         const fileBaseName = path.basename(sourceFile);
-        const clientUuid = fileBaseName.split('_')[0];
+        //index 1 for uuid, because the files have already been preprocessed and have a leading <480_>
+        const clientUuid = fileBaseName.split('_')[1];
         const audioPeakFileName = `${clientUuid}_audio_peak_analysis.txt`;
         const audioPeakFilePath = path.resolve(cuttedVideoDirectory, audioPeakFileName);
         audioPeakFileArray.push(audioPeakFilePath);
@@ -449,7 +455,6 @@ exports.cutVideosByAudioPeak = (inputDirectory, inputVideosArray) => {
                 'time': time, 
                 'mean': mean
             })
-            // console.log('t: ',time, ' mean: ',mean)
         }
 
         // calculate peak:= t[i+5] > t[i] + 30; data from moving average
@@ -466,10 +471,10 @@ exports.cutVideosByAudioPeak = (inputDirectory, inputVideosArray) => {
         const clientUuidAnalysisFile = path.basename(audioPeakFile).split('_')[0];
         peakOfClientObject[clientUuidAnalysisFile] = cuttableTimeFFMPEGFormat;
     }
-    console.log(peakOfClientObject)
     // execute command for cutting
     for (var sourceFile of inputVideosArray) {
-        const clientUuidForCutting = path.basename(sourceFile).split('_')[0];
+        //index 1 for uuid, because the files have already been preprocessed and have a leading <480_>
+        const clientUuidForCutting = path.basename(sourceFile).split('_')[1];
         const cuttableTimeFFMPEGFormat = peakOfClientObject[clientUuidForCutting];
         const outputFilePath = path.join(
             cuttedVideoDirectory,
