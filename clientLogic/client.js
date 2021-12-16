@@ -1,7 +1,7 @@
 const buffer = require('buffer');
 const bson = require('bson');
 const RecordRTC = require('recordrtc');
-const Buffer = buffer.Buffer
+const Buffer = buffer.Buffer;
 
 const wsMessage = require('../utils/wsMessage');
 const metronome = require('../utils/metronome');
@@ -39,6 +39,7 @@ socket.addEventListener('open', function (event) {
 
 // Listen for messages
 socket.addEventListener('message', function (event) {
+    // $(".toast").toast("show");
     const serverDataObj = JSON.parse(event.data);
     exports.clientId = serverDataObj.receiverId;
     const messageType = serverDataObj.messageType;

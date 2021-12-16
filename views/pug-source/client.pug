@@ -18,6 +18,14 @@ video(autoplay='')
 br
 h2 File Upload
 input#fileInput(type='file' onchange='sendFile()')
+.toast
+  .toast-header
+    | Client Message
+  .toast-body
+    |
 script
   | var localAddress="#{localAddress}"
+script(src='./js/popper.min.js' type='text/javascript')
+script(src='./js/bootstrap.min.js' type='text/javascript')
+script(src='./js/jquery.min.js' type='text/javascript')
 script(src='./../../dist/bundle-client.js' type='text/javascript')

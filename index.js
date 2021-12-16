@@ -73,6 +73,10 @@ app.use(
 );
 app.use(
   "/js", 
+  express.static(path.join(__dirname, "node_modules/@popperjs/core/dist/umd"))
+);
+app.use(
+  "/js", 
   express.static(path.join(__dirname, "node_modules/jquery/dist"))
 );
 
