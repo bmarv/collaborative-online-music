@@ -457,14 +457,9 @@ exports.cutVideosByAudioPeakSync = (inputDirectory, inputVideosArray) => {
             })
         }
 
-        // calculate peak:= t[i+5] > t[i] + 30; data from moving average
-        let peakArray = [];
-        for (var i=0; i < movingMeanDictArray.length-6; i+=1){
-            if (movingMeanDictArray[i+5]['mean']> movingMeanDictArray[i]['mean']+ 30){
-                console.log('peak found between: ',movingMeanDictArray[i]['time'], ' and ', movingMeanDictArray[i+5]['time']);
-                peakArray.push(movingMeanDictArray[i]['time']);
-            }
-        }
+        //calculate peak:= t[i+5] > t[i] + 30 (start-threshold = 30); data from moving average 
+        peakArray = exports.findAudioPeaksWithVariableThresholdRecursively(movingMeanDictArray, 30);
+
         // convert first peak-time to ffmpeg-format
         const cuttableTimeFFMPEGFormat = new Date(peakArray[0] * 1000).toISOString().substr(11,12);
         
@@ -485,4 +480,24 @@ exports.cutVideosByAudioPeakSync = (inputDirectory, inputVideosArray) => {
         cuttedVideosArray.push(outputFilePath);
     }
     return cuttedVideosArray;
+}
+
+/** calculate peak:= t[i+5] > t[i] + 30 (threshold = 30)
+ *  by starting with a threshold and recursively lowering it
+ *  @returns an array of peak values between timestamps
+*/ 
+exports.findAudioPeaksWithVariableThresholdRecursively = (movingMeanDictArray, threshold) => {
+    console.log(`AUDIO PEAK: THRESHOLD: ${threshold}`);
+    let peakArray = [];
+    for (var i=0; i < movingMeanDictArray.length-6; i+=1){
+        if (movingMeanDictArray[i+5]['mean']> movingMeanDictArray[i]['mean']+ threshold){
+            console.log('peak found between: ',movingMeanDictArray[i]['time'], ' and ', movingMeanDictArray[i+5]['time']);
+            peakArray.push(movingMeanDictArray[i]['time']);
+        }
+    }
+    if (peakArray.length === 0) {
+        console.log(`AUDIO PEAK: SETTING LOWER THRESHOLD: ${threshold} ==> ${threshold - 1}`);
+        return exports.findAudioPeaksWithVariableThresholdRecursively(movingMeanDictArray, threshold - 1);
+    }
+    return peakArray;
 }
