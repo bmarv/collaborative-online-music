@@ -1,7 +1,6 @@
 const execSync = require('child_process').execSync;
 const path = require('path');
 const fs = require('fs');
-const ffmpeg = require('fluent-ffmpeg');
 
 const helper = require('./helper');
 const fileHandler = require('./fileHandler');
@@ -29,7 +28,7 @@ exports.prepareVideoFilesAndCreateMergingCommandSync = (inputDirectory = 'output
     });
 
     // equating resolution
-    const croppedVideosArray = exports.cropVideosResolution(
+    const croppedVideosArray = exports.cropVideosResolutionSync(
         inputVideosArray = rawVideosArray,
         outputResolution = outputResolution
     );
@@ -76,7 +75,7 @@ exports.prepareVideoFilesAndCreateMergingCommandSync = (inputDirectory = 'output
  * @param {String Input of Videos} inputVideosArray 
  * @returns Array of Output-Videos
  */
-exports.cropVideosResolution = (inputVideosArray = [], outputResolution = 480) => {
+exports.cropVideosResolutionSync = (inputVideosArray = [], outputResolution = 480) => {
     // creating a new directory
     directoryPath = exports.createDirectoryWithTimeStamp('video_prep');
 
@@ -88,13 +87,11 @@ exports.cropVideosResolution = (inputVideosArray = [], outputResolution = 480) =
                 path.basename(inputVideosArray[index])
             }`
         );
-        ffmpeg(inputVideosArray[index])
-        .outputOptions([
-            `-filter:v crop=${outputResolution}:${outputResolution}`
-        ])
-        .save(
-            String(outputFile)
-        );
+        
+        const ffmpegCommand = `ffmpeg -i ${inputVideosArray[index]} -filter:v crop=480:480 ${outputFile}`;
+
+        exports.executeSyncFFMPEGCommand(ffmpegCommand);
+
         videoPrepFileArray.push(outputFile);
     }
     return videoPrepFileArray;
@@ -457,14 +454,9 @@ exports.cutVideosByAudioPeakSync = (inputDirectory, inputVideosArray) => {
             })
         }
 
-        // calculate peak:= t[i+5] > t[i] + 30; data from moving average
-        let peakArray = [];
-        for (var i=0; i < movingMeanDictArray.length-6; i+=1){
-            if (movingMeanDictArray[i+5]['mean']> movingMeanDictArray[i]['mean']+ 30){
-                console.log('peak found between: ',movingMeanDictArray[i]['time'], ' and ', movingMeanDictArray[i+5]['time']);
-                peakArray.push(movingMeanDictArray[i]['time']);
-            }
-        }
+        //calculate peak:= t[i+5] > t[i] + 30 (start-threshold = 30); data from moving average 
+        peakArray = exports.findAudioPeaksWithVariableThresholdRecursively(movingMeanDictArray, 30);
+
         // convert first peak-time to ffmpeg-format
         const cuttableTimeFFMPEGFormat = new Date(peakArray[0] * 1000).toISOString().substr(11,12);
         
@@ -485,4 +477,24 @@ exports.cutVideosByAudioPeakSync = (inputDirectory, inputVideosArray) => {
         cuttedVideosArray.push(outputFilePath);
     }
     return cuttedVideosArray;
+}
+
+/** calculate peak:= t[i+5] > t[i] + 30 (threshold = 30)
+ *  by starting with a threshold and recursively lowering it
+ *  @returns an array of peak values between timestamps
+*/ 
+exports.findAudioPeaksWithVariableThresholdRecursively = (movingMeanDictArray, threshold) => {
+    console.log(`AUDIO PEAK: THRESHOLD: ${threshold}`);
+    let peakArray = [];
+    for (var i=0; i < movingMeanDictArray.length-6; i+=1){
+        if (movingMeanDictArray[i+5]['mean']> movingMeanDictArray[i]['mean']+ threshold){
+            console.log('peak found between: ',movingMeanDictArray[i]['time'], ' and ', movingMeanDictArray[i+5]['time']);
+            peakArray.push(movingMeanDictArray[i]['time']);
+        }
+    }
+    if (peakArray.length === 0) {
+        console.log(`AUDIO PEAK: SETTING LOWER THRESHOLD: ${threshold} ==> ${threshold - 1}`);
+        return exports.findAudioPeaksWithVariableThresholdRecursively(movingMeanDictArray, threshold - 1);
+    }
+    return peakArray;
 }
