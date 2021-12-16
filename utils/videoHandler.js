@@ -1,7 +1,6 @@
 const execSync = require('child_process').execSync;
 const path = require('path');
 const fs = require('fs');
-const ffmpeg = require('fluent-ffmpeg');
 
 const helper = require('./helper');
 const fileHandler = require('./fileHandler');
