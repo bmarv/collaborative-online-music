@@ -39,7 +39,6 @@ socket.addEventListener('open', function (event) {
 
 // Listen for messages
 socket.addEventListener('message', function (event) {
-    // $(".toast").toast("show");
     const serverDataObj = JSON.parse(event.data);
     exports.clientId = serverDataObj.receiverId;
     const messageType = serverDataObj.messageType;
@@ -60,6 +59,8 @@ socket.addEventListener('message', function (event) {
             
             playToneArrayAndStartClientMetronome();
 
+            $('.toast-body').text('Recording started');
+            $('.toast').toast('show');
             navigator.mediaDevices.getUserMedia(mediaConstraints)
             .then(startVideoRecording)
             .catch(errorCallbackVideoStream);
@@ -73,6 +74,8 @@ socket.addEventListener('message', function (event) {
                 .then(stopVideoRecording)
                 .catch(errorCallbackVideoStream);
             exports.timeStampDateObject['Broadcast Stop'] = new Date();
+            $('.toast-body').text('Recording stopped');
+            $('.toast').toast('show');
         }
     }
     document.getElementById("serverMessageTextArea").value = `Server-Message: ${messageContent}`;
@@ -93,6 +96,8 @@ const sendMessage = (id = exports.clientId, messageType = 'Message', message = '
     }
     else if (messageType === 'File') {
         messageObject = wsMessage.serializeBsonMessage(packedMessage);
+        $('.toast-body').text('File sent to server');
+        $('.toast').toast('show');
     }
     socket.send(messageObject);
 }
