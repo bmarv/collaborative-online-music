@@ -29,7 +29,7 @@ exports.prepareVideoFilesAndCreateMergingCommandSync = (inputDirectory = 'output
     });
 
     // equating resolution
-    const croppedVideosArray = exports.cropVideosResolution(
+    const croppedVideosArray = exports.cropVideosResolutionSync(
         inputVideosArray = rawVideosArray,
         outputResolution = outputResolution
     );
@@ -76,7 +76,7 @@ exports.prepareVideoFilesAndCreateMergingCommandSync = (inputDirectory = 'output
  * @param {String Input of Videos} inputVideosArray 
  * @returns Array of Output-Videos
  */
-exports.cropVideosResolution = (inputVideosArray = [], outputResolution = 480) => {
+exports.cropVideosResolutionSync = (inputVideosArray = [], outputResolution = 480) => {
     // creating a new directory
     directoryPath = exports.createDirectoryWithTimeStamp('video_prep');
 
@@ -88,13 +88,11 @@ exports.cropVideosResolution = (inputVideosArray = [], outputResolution = 480) =
                 path.basename(inputVideosArray[index])
             }`
         );
-        ffmpeg(inputVideosArray[index])
-        .outputOptions([
-            `-filter:v crop=${outputResolution}:${outputResolution}`
-        ])
-        .save(
-            String(outputFile)
-        );
+        
+        const ffmpegCommand = `ffmpeg -i ${inputVideosArray[index]} -filter:v crop=480:480 ${outputFile}`;
+
+        exports.executeSyncFFMPEGCommand(ffmpegCommand);
+
         videoPrepFileArray.push(outputFile);
     }
     return videoPrepFileArray;
