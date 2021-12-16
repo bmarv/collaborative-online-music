@@ -1,0 +1,50 @@
+doctype html
+head
+  meta(charset='UTF-8')
+  meta(http-equiv='X-UA-Compatible' content='IE=edge')
+  meta(name='viewport' content='width=device-width, initial-scale=1.0')
+  link(rel='stylesheet' href='../style/client-style.css')
+  title Collaborative Online Music - Host
+h1
+  | Welcome Host: 
+  span#hostIDText
+br
+h2 Metronome
+|         bpm:
+input#bpmInput(type='number' min='0' size='5' placeholder='80')
+br
+|         beat: nominator  : 
+input#nominatorInput(type='number' min='0' size='5' placeholder='3')
+br
+|         beat: denominator: 
+input#denominatorInput(type='number' min='0' size='5' placeholder='4')
+br
+button(onclick='startMetronome()') Start Metronome
+button#stopMetronomeButton Stop Metronome
+button#muteMetronomeButton Mute/Unmute
+br
+#metronomeIconsContainer
+br
+h2 Start Sounds
+|         start sounds: 
+input#startSoundsInput(placeholder='d4, f#4, a4, c3')
+button(onclick='saveStartSounds()') Save Start Sounds
+br
+br
+h2 Broadcast Actions
+button(onclick='sendBroadcastStart()') Broadcast: Start
+button(onclick='sendBroadcastStop()') Broadcast: Stop
+br
+br
+h2 Prepare Merging
+button(onclick='prepareMergingVideos()') Prepare Merging Videos
+h2 Merging Strategies
+button(onclick='applyMergingStrategyRecordingStart()') Merging Strategy: Recording Start
+button(onclick='applyMergingStrategyMetronomeStart()') Merging Strategy: Metronome Start
+button(onclick='applyMergingStrategySingingStart()') Merging Strategy: Singing Start
+button(onclick='applyMergingStrategyAudioPeak()') Merging Strategy: Audio Peak
+h2 Merging Videos
+button(onclick='mergeVideos()') Merge Videos
+script 
+  | var localAddress="#{localAddress}"
+script(src='./../../dist/bundle-host.js' type='text/javascript')

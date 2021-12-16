@@ -1,0 +1,35 @@
+{
+  "name": "collaborative-online-music",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "commonjs",
+  "nodemonConfig": {
+    "ignore": ["output/*"]
+  },
+  "scripts": {
+    "start": "node index",
+    "build-client": "npx browserify clientLogic/client.js -o dist/bundle-client.js",
+    "build-host": "npx browserify clientLogic/host.js -o dist/bundle-host.js",
+    "build-dist": "npx concurrently 'npm run build-host' 'npm run build-client'",
+    "dev-app": "npx nodemon index.js",
+    "dev": "npm run build-dist && npm run dev-app"
+  },
+  "keywords": [],
+  "author": "Marvin Beese",
+  "license": "",
+  "dependencies": {
+    "bson": "^4.5.2",
+    "express": "^4.17.1",
+    "howler": "^2.2.3",
+    "nodemon": "^2.0.12",
+    "pug": "^3.0.2",
+    "recordrtc": "^5.6.2",
+    "uuid": "^8.3.2",
+    "ws": "^7.3.0"
+  },
+  "devDependencies": {
+    "browserify": "^17.0.0",
+    "concurrently": "^6.3.0"
+  }
+}
