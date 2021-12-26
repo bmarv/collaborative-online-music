@@ -24,6 +24,7 @@ const fs = require('fs');
 const express = require('express');
 const path = require('path');
 const WebSocket = require('ws');
+const ip = require('ip');
 require('dotenv').config()
 
 const wsActions = require('./utils/wsActions');
@@ -88,4 +89,5 @@ app.use(express.static(path.join(__dirname, 'views')));
 app.use(express.static(path.join(__dirname, 'views', 'pug-source')));
 app.use(express.static(path.join(__dirname, 'views', 'html-source')));
 
+console.log(`Served on ${publicIpAddress ? `exposed address: >${publicIpAddress}< with local address >${ip.address()}<` : ip.address()}`);
 server.listen(port, () => console.log(`Listening on port: ${port}`));
