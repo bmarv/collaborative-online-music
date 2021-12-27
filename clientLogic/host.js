@@ -4,7 +4,7 @@ const soundHandler = require('../utils/soundHandler');
 
 const port = process.env.PORT || 3000;
 
-exports.ipAdress = null;
+exports.ipAddress = null;
 exports.hostId = null;
 exports.metronomeInstanceActive = false;
 exports.metronomeInstanceSoundActive = true;
@@ -16,16 +16,16 @@ exports.metronomeConstraints = null;
 exports.mergingVideosCommand = null;
 exports.startSoundsArray = null;
 
-const setIpAdress = () => {
+const setIpAddress = () => {
     const reqIpSplittedArray = localAddress.split(':');
-    exports.ipAdress = reqIpSplittedArray[reqIpSplittedArray.length - 1];
-    return exports.ipAdress;
+    exports.ipAddress = reqIpSplittedArray[reqIpSplittedArray.length - 1];
+    return exports.ipAddress;
 }
 
-setIpAdress();
+setIpAddress();
 
 // Open WebSocket connection as a Client.
-const socket = new WebSocket(`wss://${exports.ipAdress}:${port}`);
+const socket = new WebSocket(`wss://${exports.ipAddress}:${port}`);
 
 
 // Open Connection
