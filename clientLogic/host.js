@@ -8,6 +8,7 @@ exports.ipAdress = null;
 exports.hostId = null;
 exports.metronomeInstanceActive = false;
 exports.metronomeInstanceSoundActive = true;
+exports.clientMetronomeAudioForWholeSession = false;
 exports.bpmInput = null;
 exports.nominatorInput = null;
 exports.denominatorInput = null;
@@ -98,7 +99,8 @@ const sendBroadcastStart = (
     message = 'Broadcast from Host: Start', 
     additionalContent = {
         'metronomeConstraints': exports.metronomeConstraints,
-        'startSoundArray': exports.startSoundsArray
+        'startSoundArray': exports.startSoundsArray,
+        'clientMetronomeAudioForWholeSession': exports.clientMetronomeAudioForWholeSession
     }
 ) => sendBroadcast(message, additionalContent);
 window.sendBroadcastStart = sendBroadcastStart;
@@ -176,6 +178,16 @@ const startMetronome = async() => {
     }
 }
 window.startMetronome = startMetronome;
+
+const setClientMetronomeAudioForCountingIn = () => {
+    exports.clientMetronomeAudioForWholeSession = false;
+}
+window.setClientMetronomeAudioForCountingIn = setClientMetronomeAudioForCountingIn;
+
+const setClientMetronomeAudioForWholeSession = () => {
+    exports.clientMetronomeAudioForWholeSession = true;
+}
+window.setClientMetronomeAudioForWholeSession = setClientMetronomeAudioForWholeSession;
 
 const prepareMergingVideos = () => {
     sendMessage(id = exports.hostId, messageType = 'Message', message = 'Prepare Merging', additionalContent = false);

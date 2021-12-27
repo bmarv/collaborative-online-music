@@ -14,6 +14,7 @@ exports.clientId = null;
 exports.recorder = -1;
 exports.metronomeInstanceActive = false;
 exports.metronomeInstanceSoundActive = true;
+exports.clientMetronomeAudioForWholeSession = false;
 exports.bpmInput = null;
 exports.nominatorInput = null;
 exports.denominatorInput = null;
@@ -56,6 +57,7 @@ socket.addEventListener('message', function (event) {
             exports.nominatorInput = additionalContent.metronomeConstraints.nominator;
             exports.denominatorInput = additionalContent.metronomeConstraints.denominator;
             exports.startSoundArray = additionalContent.startSoundArray;
+            exports.clientMetronomeAudioForWholeSession = additionalContent.clientMetronomeAudioForWholeSession;
             
             playToneArrayAndStartClientMetronome();
 
@@ -202,7 +204,9 @@ const playToneArrayAndStartClientMetronome = async() => {
         )
         // mute after 2 bars:
         if (clockTicks === muteAfterClockTicksNr) { 
-            exports.metronomeInstanceSoundActive = false;
+            if (! exports.clientMetronomeAudioForWholeSession) {
+                exports.metronomeInstanceSoundActive = false;
+            }
             exports.timeStampDateObject['Counting In Stopped'] = new Date();
         }
         // mute Metronome
