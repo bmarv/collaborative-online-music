@@ -1,7 +1,7 @@
 const buffer = require('buffer');
 const bson = require('bson');
 const RecordRTC = require('recordrtc');
-const Buffer = buffer.Buffer
+const Buffer = buffer.Buffer;
 
 const wsMessage = require('../utils/wsMessage');
 const metronome = require('../utils/metronome');
@@ -59,6 +59,8 @@ socket.addEventListener('message', function (event) {
             
             playToneArrayAndStartClientMetronome();
 
+            $('.toast-body').text('Recording started');
+            $('.toast').toast('show');
             navigator.mediaDevices.getUserMedia(mediaConstraints)
             .then(startVideoRecording)
             .catch(errorCallbackVideoStream);
@@ -72,6 +74,8 @@ socket.addEventListener('message', function (event) {
                 .then(stopVideoRecording)
                 .catch(errorCallbackVideoStream);
             exports.timeStampDateObject['Broadcast Stop'] = new Date();
+            $('.toast-body').text('Recording stopped');
+            $('.toast').toast('show');
         }
     }
     document.getElementById("serverMessageTextArea").value = `Server-Message: ${messageContent}`;
@@ -92,6 +96,8 @@ const sendMessage = (id = exports.clientId, messageType = 'Message', message = '
     }
     else if (messageType === 'File') {
         messageObject = wsMessage.serializeBsonMessage(packedMessage);
+        $('.toast-body').text('File sent to server');
+        $('.toast').toast('show');
     }
     socket.send(messageObject);
 }

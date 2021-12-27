@@ -5,7 +5,9 @@
   "main": "index.js",
   "type": "commonjs",
   "nodemonConfig": {
-    "ignore": ["output/*"]
+    "ignore": [
+      "output/*"
+    ]
   },
   "scripts": {
     "start": "node index",
@@ -19,9 +21,12 @@
   "author": "Marvin Beese",
   "license": "",
   "dependencies": {
+    "@popperjs/core": "^2.11.0",
+    "bootstrap": "^5.1.3",
     "bson": "^4.5.2",
     "express": "^4.17.1",
     "howler": "^2.2.3",
+    "jquery": "^3.6.0",
     "nodemon": "^2.0.12",
     "pug": "^3.0.2",
     "recordrtc": "^5.6.2",
