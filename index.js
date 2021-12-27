@@ -24,9 +24,13 @@ const fs = require('fs');
 const express = require('express');
 const path = require('path');
 const WebSocket = require('ws');
+const ip = require('ip');
+require('dotenv').config()
 
 const wsActions = require('./utils/wsActions');
 
+// if exposed hosting is used, use public ip
+const publicIpAddress = process.env.IP_ADDRESS;
 
 const sslOptions = {
   key: fs.readFileSync(path.join(__dirname, 'certs', 'ssl.key')),
@@ -52,14 +56,14 @@ app.get('/', function (req, res) {
 app.get('/host', function (req, res) {
   console.log(`incomming connection on /host: ${req.socket.remoteAddress}`);
   res.render(path.join(__dirname, 'views', 'pug-source', 'host'), { 
-    localAddress: req.socket.localAddress,
+    localAddress: publicIpAddress ? publicIpAddress : req.socket.localAddress,
   });
 });
 
 app.get('/client', function (req, res) {
   console.log(`incomming connection on /client ${req.socket.remoteAddress}`);
   res.render(path.join(__dirname, 'views', 'pug-source', 'client'), { 
-    localAddress: req.socket.localAddress,
+    localAddress: publicIpAddress ? publicIpAddress : req.socket.localAddress,
   });
 });
 
@@ -85,4 +89,5 @@ app.use(express.static(path.join(__dirname, 'views')));
 app.use(express.static(path.join(__dirname, 'views', 'pug-source')));
 app.use(express.static(path.join(__dirname, 'views', 'html-source')));
 
+console.log(`Served on ${publicIpAddress ? `exposed address: >${publicIpAddress}< with local address >${ip.address()}<` : ip.address()}`);
 server.listen(port, () => console.log(`Listening on port: ${port}`));
