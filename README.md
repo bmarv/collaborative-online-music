@@ -54,6 +54,12 @@ ifconfig
 Now the hosted program is reachable on the entrypoint:
 `https://<ipv4-address>:3000/`
 
+If it is needed to host the program exposed, then it is required to create a .env file containing the exposed ipv4-Address.
+The Contents of the .env -File looks as follows:
+```
+IP_ADDRESS=::ffff:<ipv4-address>
+```
+
 ### Host
 To run the program as a host, please navigate to the endpoint `/host` and expect a warning from the site, as the ssl-certificate is self-signed, which offers a potential security-risk to the client. \
 If you trust the program, you will see a screen with your uuid, which is the unique identifier for the host during the whole session. \
