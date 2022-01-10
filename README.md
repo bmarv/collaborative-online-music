@@ -9,12 +9,6 @@
 * 0.0.6-local-network-hosting
 * 0.0.7-server-media-rendering
 * 0.0.8-server-media-synchronization
-* 0.0.9-client-audio-normalization
-* 0.0.10-session-bound-filesystem-handling
-* 0.0.11-pw-security
-* 0.0.12-exposed-hosting
-* 0.0.13-frontend
-* ~(0.0.14-host-video-stream)~
 
 <br><br>
 
