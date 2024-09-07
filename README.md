@@ -1,16 +1,9 @@
 # collaborative-online-music
 
-## Development-Versions
-* 0.0.1-ws-architecture
-* 0.0.2-ws-file-transfer
-* 0.0.3-broadcast-server-message
-* 0.0.4-client-recording
-* 0.0.5-host-metronome
-* 0.0.6-local-network-hosting
-* 0.0.7-server-media-rendering
-* 0.0.8-server-media-synchronization
+![](res/program-structure.jpg)
+_Abstract of the BSc.-Thesis._ \
+Computational collaboration is a vivid field in computer science with possibilities of applications in the field of music-making. Where current approaches often try to synchronize the participants in real-time, this thesis accepts the latency between participants as a physical constraint that cannot be overcome and uses synchronization in retrospective. In scope of this work a webapplication has been developed, which uses Websockets as a communication-protocol for effective bidirectional client-server-communication and implements two different strategies for the synchronization of the participants. One is timestamp-based whereas the other one analyses the client-audios for finding the first peak in the loudness. This thesis sets a focus on the timestamp-based synchronization and evaluates the developed program with regard to its functionality, user-friendliness and its ability to synchronize musicians. Where there is potential for improvement in terms of synchronization, the collaboration with websocket-based communication results in a stable program with positive results.
 
-<br><br>
 
 ## Installation
 This Program is build with the node-version 10.19 and requires as dependencies ffmpeg for server-side media-manipulation and openssl for hosting with an ssl-certificate, which is installable on debian-based systems with the following command:
